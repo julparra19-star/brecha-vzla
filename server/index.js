@@ -1,0 +1,269 @@
+// =============================================================================
+// Servidor Express.js Principal
+// Monitor de tasas de cambio venezolanas (BCV + Binance P2P)
+// =============================================================================
+
+// Cargar variables de entorno desde .env
+require('dotenv').config();
+
+const express = require('express');
+const cors = require('cors');
+const path = require('path');
+const cron = require('node-cron');
+
+// Importar servicios
+const { fetchBCVRates } = require('./services/bcv');
+const { fetchBinanceP2P } = require('./services/binance');
+const { calculateGaps } = require('./services/calculator');
+const { saveRates, getHistory, isConfigured } = require('./services/supabase');
+
+// Configuración del servidor
+const PORT = process.env.PORT || 3000;
+const app = express();
+
+// =============================================================================
+// Middleware
+// =============================================================================
+
+// Habilitar CORS para permitir requests desde el frontend
+app.use(cors());
+
+// Parsear body como JSON
+app.use(express.json());
+
+// Servir archivos estáticos del frontend (build de producción)
+app.use(express.static(path.join(__dirname, '..', 'dist')));
+
+// =============================================================================
+// Rutas de la API
+// =============================================================================
+
+/**
+ * GET /api/bcv
+ * Retorna las tasas oficiales del BCV (USD y EUR) con 3 decimales
+ */
+app.get('/api/bcv', async (req, res) => {
+  try {
+    const data = await fetchBCVRates();
+
+    if (!data) {
+      return res.status(503).json({
+        error: 'No se pudieron obtener las tasas del BCV',
+        message: 'El servicio del BCV no está disponible temporalmente',
+      });
+    }
+
+    res.json({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    console.error('[API /bcv] Error:', error.message);
+    res.status(500).json({
+      error: 'Error interno del servidor',
+      message: error.message,
+    });
+  }
+});
+
+/**
+ * GET /api/binance/p2p
+ * Retorna los precios de compra, venta y promedio de USDT/VES en Binance P2P
+ */
+app.get('/api/binance/p2p', async (req, res) => {
+  try {
+    const data = await fetchBinanceP2P();
+
+    if (!data || (data.compra === null && data.venta === null)) {
+      return res.status(503).json({
+        error: 'No se pudieron obtener los precios de Binance P2P',
+        message: 'El servicio de Binance P2P no está disponible temporalmente',
+      });
+    }
+
+    res.json({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    console.error('[API /binance/p2p] Error:', error.message);
+    res.status(500).json({
+      error: 'Error interno del servidor',
+      message: error.message,
+    });
+  }
+});
+
+/**
+ * GET /api/rates
+ * Retorna todos los datos combinados: BCV + Binance P2P + brechas calculadas
+ * Este es el endpoint principal que consume el frontend
+ */
+app.get('/api/rates', async (req, res) => {
+  try {
+    // Obtener datos de ambas fuentes en paralelo
+    const [bcvData, binanceData] = await Promise.all([
+      fetchBCVRates(),
+      fetchBinanceP2P(),
+    ]);
+
+    // Calcular brechas (funciona parcialmente si falta algún dato)
+    const result = calculateGaps(bcvData, binanceData);
+
+    res.json({
+      success: true,
+      data: result,
+      supabase_configured: isConfigured(),
+    });
+  } catch (error) {
+    console.error('[API /rates] Error:', error.message);
+    res.status(500).json({
+      error: 'Error interno del servidor',
+      message: error.message,
+    });
+  }
+});
+
+/**
+ * GET /api/history
+ * Retorna el historial de tasas guardadas en Supabase
+ * Query params: limit (default 50)
+ */
+app.get('/api/history', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 50;
+    const history = await getHistory(limit);
+
+    res.json({
+      success: true,
+      data: history,
+      count: history.length,
+      supabase_configured: isConfigured(),
+    });
+  } catch (error) {
+    console.error('[API /history] Error:', error.message);
+    res.status(500).json({
+      error: 'Error interno del servidor',
+      message: error.message,
+    });
+  }
+});
+
+/**
+ * POST /api/save-rates
+ * Obtiene las tasas actuales y las guarda en Supabase
+ * Útil para guardado manual o desde el frontend
+ */
+app.post('/api/save-rates', async (req, res) => {
+  try {
+    if (!isConfigured()) {
+      return res.status(400).json({
+        error: 'Supabase no está configurado',
+        message: 'Configure las variables SUPABASE_URL y SUPABASE_KEY en el archivo .env',
+      });
+    }
+
+    // Obtener datos actuales
+    const [bcvData, binanceData] = await Promise.all([
+      fetchBCVRates(),
+      fetchBinanceP2P(),
+    ]);
+
+    // Calcular brechas
+    const result = calculateGaps(bcvData, binanceData);
+
+    // Guardar en Supabase
+    const saved = await saveRates(result);
+
+    if (!saved) {
+      return res.status(500).json({
+        error: 'No se pudieron guardar las tasas',
+        message: 'Error al insertar en Supabase',
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Tasas guardadas exitosamente',
+      data: result,
+    });
+  } catch (error) {
+    console.error('[API /save-rates] Error:', error.message);
+    res.status(500).json({
+      error: 'Error interno del servidor',
+      message: error.message,
+    });
+  }
+});
+
+// =============================================================================
+// Ruta catch-all para SPA (Single Page Application)
+// Redirige todas las rutas no-API al frontend
+// =============================================================================
+app.get('*', (req, res) => {
+  // Solo servir index.html si no es una ruta de API
+  if (!req.path.startsWith('/api')) {
+    res.sendFile(path.join(__dirname, '..', 'dist', 'index.html'));
+  }
+});
+
+// =============================================================================
+// Tarea Cron: Guardado automático de tasas
+// Se ejecuta a las 9:00 AM, 12:00 PM y 6:00 PM (hora del servidor)
+// =============================================================================
+const CRON_SCHEDULE = '0 9,12,18 * * *';
+
+cron.schedule(CRON_SCHEDULE, async () => {
+  console.log(`\n[CRON] ⏰ Ejecutando tarea programada - ${new Date().toLocaleString('es-VE')}`);
+
+  try {
+    // Obtener datos de ambas fuentes
+    const [bcvData, binanceData] = await Promise.all([
+      fetchBCVRates(),
+      fetchBinanceP2P(),
+    ]);
+
+    // Calcular brechas
+    const result = calculateGaps(bcvData, binanceData);
+
+    // Loguear resumen
+    console.log('[CRON] 📊 Datos obtenidos:');
+    console.log(`  - USD BCV: ${result.bcv?.usd || 'N/A'}`);
+    console.log(`  - EUR BCV: ${result.bcv?.eur || 'N/A'}`);
+    console.log(`  - USDT Compra: ${result.binance?.compra || 'N/A'}`);
+    console.log(`  - USDT Venta: ${result.binance?.venta || 'N/A'}`);
+    console.log(`  - Brecha USD/USDT: ${result.brechas?.brecha_usd_usdt || 'N/A'}%`);
+
+    // Guardar en Supabase si está configurado
+    if (isConfigured()) {
+      const saved = await saveRates(result);
+      if (saved) {
+        console.log('[CRON] ✅ Datos guardados en Supabase');
+      } else {
+        console.error('[CRON] ❌ Error al guardar en Supabase');
+      }
+    } else {
+      console.warn('[CRON] ⚠️  Supabase no configurado, datos no persistidos');
+    }
+  } catch (error) {
+    console.error('[CRON] ❌ Error en tarea programada:', error.message);
+  }
+});
+
+console.log(`[CRON] 📅 Tarea programada: ${CRON_SCHEDULE} (9:00, 12:00, 18:00)`);
+
+// =============================================================================
+// Iniciar servidor
+// =============================================================================
+app.listen(PORT, () => {
+  console.log('='.repeat(60));
+  console.log('  Monitor de Tasas de Cambio - Venezuela');
+  console.log('='.repeat(60));
+  console.log(`  🚀 Servidor corriendo en: http://localhost:${PORT}`);
+  console.log(`  📡 API disponible en:     http://localhost:${PORT}/api`);
+  console.log(`  💾 Supabase:              ${isConfigured() ? '✅ Configurado' : '⚠️  No configurado'}`);
+  console.log(`  ⏰ Cron:                  ${CRON_SCHEDULE}`);
+  console.log('='.repeat(60));
+});
+
+module.exports = app;

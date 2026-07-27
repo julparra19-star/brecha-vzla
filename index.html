@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0a0a1a">
+  <meta name="description" content="BrechaVzla — Monitoreo en tiempo real de tasas de cambio BCV, Binance P2P y brechas cambiarias en Venezuela.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="BrechaVzla">
+
+  <title>BrechaVzla — Tasas y Brechas en Tiempo Real</title>
+
+  <!-- Manifest PWA -->
+  <link rel="manifest" href="/manifest.json">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Estilos principales -->
+  <link rel="stylesheet" href="/src/styles/main.css">
+
+  <!-- Chart.js vía CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <!-- Fondo animado con gradiente -->
+  <div class="animated-bg"></div>
+
+  <!-- Estado de carga / Skeleton -->
+  <div id="loading-overlay" class="loading-overlay active">
+    <div class="loader-container">
+      <div class="loader-ring"></div>
+      <span class="loader-text">Cargando tasas…</span>
+    </div>
+  </div>
+
+  <!-- ==================== HEADER ==================== -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-logo">
+          <span class="logo-icon">📊</span>
+          <h1 class="brand-name">Brecha<span class="brand-accent">Vzla</span></h1>
+        </div>
+        <div class="live-badge">
+          <span class="live-dot"></span>
+          <span class="live-text">EN VIVO</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Botón de notificaciones -->
+        <button id="btn-notifications" class="header-btn" title="Activar notificaciones" aria-label="Activar notificaciones">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+        </button>
+        <!-- Botón de instalar PWA -->
+        <button id="btn-install" class="header-btn install-btn hidden" title="Instalar aplicación" aria-label="Instalar aplicación">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <!-- Última actualización -->
+    <div class="last-update">
+      <span class="update-label">Última actualización:</span>
+      <span id="last-update-time" class="update-time">--:--:--</span>
+    </div>
+  </header>
+
+  <!-- ==================== CONTENIDO PRINCIPAL ==================== -->
+  <main class="main-content">
+
+    <!-- === SECCIÓN HERO: Métricas principales === -->
+    <section class="section hero-section">
+      <h2 class="section-title">
+        <span class="section-icon">💰</span>
+        Tasas Oficiales
+      </h2>
+      <div class="metrics-grid hero-grid">
+        <!-- Tarjeta USD BCV -->
+        <div class="metric-card card-usd" id="card-usd-bcv">
+          <div class="card-glow"></div>
+          <div class="card-header">
+            <span class="card-badge badge-blue">BCV</span>
+            <span class="card-trend" id="trend-usd-bcv">—</span>
+          </div>
+          <div class="card-body">
+            <span class="card-label">Dólar USD</span>
+            <div class="card-value-wrapper">
+              <span class="card-prefix">Bs.</span>
+              <span class="card-value" id="value-usd-bcv">
+                <span class="skeleton-text"></span>
+              </span>
+            </div>
+          </div>
+          <div class="card-footer">
+            <span class="card-source">Banco Central de Venezuela</span>
+          </div>
+        </div>
+
+        <!-- Tarjeta EUR BCV -->
+        <div class="metric-card card-eur" id="card-eur-bcv">
+          <div class="card-glow"></div>
+          <div class="card-header">
+            <span class="card-badge badge-purple">BCV</span>
+            <span class="card-trend" id="trend-eur-bcv">—</span>
+          </div>
+          <div class="card-body">
+            <span class="card-label">Euro EUR</span>
+            <div class="card-value-wrapper">
+              <span class="card-prefix">Bs.</span>
+              <span class="card-value" id="value-eur-bcv">
+                <span class="skeleton-text"></span>
+              </span>
+            </div>
+          </div>
+          <div class="card-footer">
+            <span class="card-source">Banco Central de Venezuela</span>
+          </div>
+        </div>
+
+        <!-- Tarjeta USDT Promedio P2P -->
+        <div class="metric-card card-usdt featured" id="card-usdt-promedio">
+          <div class="card-glow"></div>
+          <div class="card-header">
+            <span class="card-badge badge-cyan">P2P</span>
+            <span class="card-trend" id="trend-usdt-promedio">—</span>
+          </div>
+          <div class="card-body">
+            <span class="card-label">USDT Promedio</span>
+            <div class="card-value-wrapper">
+              <span class="card-prefix">Bs.</span>
+              <span class="card-value" id="value-usdt-promedio">
+                <span class="skeleton-text"></span>
+              </span>
+            </div>
+          </div>
+          <div class="card-footer">
+            <span class="card-source">Binance P2P Venezuela</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- === SECCIÓN BINANCE P2P === -->
+    <section class="section p2p-section">
+      <h2 class="section-title">
+        <span class="section-icon">🔄</span>
+        Binance P2P
+      </h2>
+      <div class="metrics-grid p2p-grid">
+        <!-- USDT Compra -->
+        <div class="metric-card card-compra" id="card-usdt-compra">
+          <div class="card-glow"></div>
+          <div class="card-header">
+            <span class="card-badge badge-green">COMPRA</span>
+            <span class="card-trend" id="trend-usdt-compra">—</span>
+          </div>
+          <div class="card-body">
+            <span class="card-label">USDT Compra</span>
+            <div class="card-value-wrapper">
+              <span class="card-prefix">Bs.</span>
+              <span class="card-value" id="value-usdt-compra">
+                <span class="skeleton-text"></span>
+              </span>
+            </div>
+          </div>
+          <div class="card-footer">
+            <span class="card-source">Precio de compra P2P</span>
+          </div>
+        </div>
+
+        <!-- USDT Venta -->
+        <div class="metric-card card-venta" id="card-usdt-venta">
+          <div class="card-glow"></div>
+          <div class="card-header">
+            <span class="card-badge badge-red">VENTA</span>
+            <span class="card-trend" id="trend-usdt-venta">—</span>
+          </div>
+          <div class="card-body">
+            <span class="card-label">USDT Venta</span>
+            <div class="card-value-wrapper">
+              <span class="card-prefix">Bs.</span>
+              <span class="card-value" id="value-usdt-venta">
+                <span class="skeleton-text"></span>
+              </span>
+            </div>
+          </div>
+          <div class="card-footer">
+            <span class="card-source">Precio de venta P2P</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- === SECCIÓN BRECHAS === -->
+    <section class="section gap-section">
+      <h2 class="section-title">
+        <span class="section-icon">📐</span>
+        Brechas Cambiarias
+      </h2>
+      <div class="metrics-grid gap-grid">
+        <!-- Brecha USD/USDT -->
+        <div class="metric-card card-gap" id="card-brecha-usd">
+          <div class="card-glow"></div>
+          <div class="card-header">
+            <span class="card-badge badge-blue">USD/USDT</span>
+          </div>
+          <div class="card-body">
+            <span class="card-label">Brecha USD</span>
+            <div class="card-value-wrapper">
+              <span class="card-value gap-value" id="value-brecha-usd">
+                <span class="skeleton-text"></span>
+              </span>
+              <span class="card-suffix">%</span>
+            </div>
+          </div>
+          <div class="card-footer">
+            <div class="gap-bar-container">
+              <div class="gap-bar" id="bar-brecha-usd"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Brecha EUR/USDT -->
+        <div class="metric-card card-gap" id="card-brecha-eur">
+          <div class="card-glow"></div>
+          <div class="card-header">
+            <span class="card-badge badge-purple">EUR/USDT</span>
+          </div>
+          <div class="card-body">
+            <span class="card-label">Brecha EUR</span>
+            <div class="card-value-wrapper">
+              <span class="card-value gap-value" id="value-brecha-eur">
+                <span class="skeleton-text"></span>
+              </span>
+              <span class="card-suffix">%</span>
+            </div>
+          </div>
+          <div class="card-footer">
+            <div class="gap-bar-container">
+              <div class="gap-bar" id="bar-brecha-eur"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Spread USDT -->
+        <div class="metric-card card-gap" id="card-spread-usdt">
+          <div class="card-glow"></div>
+          <div class="card-header">
+            <span class="card-badge badge-yellow">SPREAD</span>
+          </div>
+          <div class="card-body">
+            <span class="card-label">Spread USDT</span>
+            <div class="card-value-wrapper">
+              <span class="card-value gap-value" id="value-spread-usdt">
+                <span class="skeleton-text"></span>
+              </span>
+              <span class="card-suffix">%</span>
+            </div>
+          </div>
+          <div class="card-footer">
+            <div class="gap-bar-container">
+              <div class="gap-bar" id="bar-spread-usdt"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- === SECCIÓN GRÁFICO === -->
+    <section class="section chart-section">
+      <h2 class="section-title">
+        <span class="section-icon">📈</span>
+        Historial de Tasas
+      </h2>
+      <div class="chart-container glass-card">
+        <canvas id="rates-chart"></canvas>
+      </div>
+    </section>
+
+    <!-- === SECCIÓN HISTORIAL / TABLA === -->
+    <section class="section history-section">
+      <h2 class="section-title">
+        <span class="section-icon">🕐</span>
+        Registro Histórico
+      </h2>
+      <div class="table-container glass-card">
+        <div class="table-scroll">
+          <table class="history-table" id="history-table">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>USD BCV</th>
+                <th>EUR BCV</th>
+                <th>USDT Prom.</th>
+                <th>Brecha USD</th>
+              </tr>
+            </thead>
+            <tbody id="history-table-body">
+              <!-- Filas skeleton de carga -->
+              <tr class="skeleton-row"><td colspan="5"><span class="skeleton-text wide"></span></td></tr>
+              <tr class="skeleton-row"><td colspan="5"><span class="skeleton-text wide"></span></td></tr>
+              <tr class="skeleton-row"><td colspan="5"><span class="skeleton-text wide"></span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="app-footer">
+    <div class="footer-inner">
+      <p class="footer-text">
+        <span class="footer-brand">BrechaVzla</span> — Monitoreo de tasas cambiarias
+      </p>
+      <p class="footer-credits">
+        Datos de BCV y Binance P2P · Actualización automática cada 5 min
+      </p>
+    </div>
+  </footer>
+
+  <!-- ==================== SCRIPTS ==================== -->
+  <script type="module" src="/src/main.js"></script>
+
+</body>
+</html>

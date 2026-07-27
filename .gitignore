@@ -1,0 +1,26 @@
+# Dependencias
+node_modules/
+
+# Variables de entorno (contiene claves secretas)
+.env
+
+# Build de producción
+dist/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Cache
+.cache/

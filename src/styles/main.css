@@ -1,0 +1,964 @@
+/* ============================================================
+   main.css — Estilos Premium para BrechaVzla
+   Dashboard con glassmorphism, gradientes y micro-animaciones
+   ============================================================ */
+
+/* === VARIABLES CSS === */
+:root {
+  --bg-primary: #0a0a1a;
+  --bg-secondary: #12122a;
+  --bg-card: rgba(25, 25, 60, 0.6);
+  --text-primary: #e8e8ff;
+  --text-secondary: #8888bb;
+  --accent-blue: #4a7dff;
+  --accent-purple: #7c3aed;
+  --accent-cyan: #06b6d4;
+  --accent-green: #10b981;
+  --accent-red: #ef4444;
+  --accent-yellow: #f59e0b;
+  --gradient-primary: linear-gradient(135deg, #4a7dff, #7c3aed);
+  --gradient-hero: linear-gradient(135deg, #0a0a1a 0%, #1a1a3e 50%, #0a0a1a 100%);
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --shadow-glow: 0 0 30px rgba(74, 125, 255, 0.15);
+
+  /* Tipografía */
+  --font-heading: 'Outfit', sans-serif;
+  --font-body: 'Inter', sans-serif;
+
+  /* Espaciado */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+
+  /* Bordes */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+}
+
+/* === RESET Y BASE === */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  overflow-x: hidden;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* === SCROLLBAR PERSONALIZADO === */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(74, 125, 255, 0.3);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(74, 125, 255, 0.5);
+}
+
+/* === FONDO ANIMADO === */
+.animated-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  background: var(--gradient-hero);
+  overflow: hidden;
+}
+
+.animated-bg::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    ellipse at 20% 50%,
+    rgba(74, 125, 255, 0.08) 0%,
+    transparent 50%
+  ),
+  radial-gradient(
+    ellipse at 80% 20%,
+    rgba(124, 58, 237, 0.06) 0%,
+    transparent 50%
+  ),
+  radial-gradient(
+    ellipse at 50% 80%,
+    rgba(6, 182, 212, 0.05) 0%,
+    transparent 50%
+  );
+  animation: bgDrift 20s ease-in-out infinite;
+}
+
+@keyframes bgDrift {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(2%, -1%) rotate(1deg); }
+  50% { transform: translate(-1%, 2%) rotate(-0.5deg); }
+  75% { transform: translate(1%, -2%) rotate(0.5deg); }
+}
+
+/* === ESTADO DE CARGA (OVERLAY) === */
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: var(--bg-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+.loading-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.loader-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-lg);
+}
+
+.loader-ring {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.08);
+  border-top-color: var(--accent-blue);
+  border-right-color: var(--accent-purple);
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loader-text {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.5px;
+}
+
+/* === SKELETON UI === */
+.skeleton-text {
+  display: inline-block;
+  height: 1.2em;
+  min-width: 80px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.04) 25%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.04) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+.skeleton-text.wide {
+  width: 100%;
+  min-width: 200px;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.skeleton-row td {
+  padding: var(--space-md);
+}
+
+/* === HEADER === */
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: var(--space-md) var(--space-lg);
+  background: rgba(10, 10, 26, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.brand-logo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.logo-icon {
+  font-size: 1.6rem;
+  filter: drop-shadow(0 0 8px rgba(74, 125, 255, 0.4));
+}
+
+.brand-name {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.5px;
+}
+
+.brand-accent {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Indicador EN VIVO */
+.live-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent-green);
+  box-shadow: 0 0 8px var(--accent-green);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.85); }
+}
+
+.live-text {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--accent-green);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* Acciones del header */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.header-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  background: var(--glass-bg);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.header-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.header-btn:active {
+  transform: translateY(0) scale(0.95);
+}
+
+.header-btn.hidden {
+  display: none;
+}
+
+/* Última actualización */
+.last-update {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  padding-top: var(--space-sm);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.update-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+.update-time {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--accent-cyan);
+  font-variant-numeric: tabular-nums;
+}
+
+/* === CONTENIDO PRINCIPAL === */
+.main-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-lg);
+  padding-bottom: var(--space-2xl);
+}
+
+/* === SECCIONES === */
+.section {
+  margin-bottom: var(--space-2xl);
+}
+
+.section-title {
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--space-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.section-icon {
+  font-size: 1.3rem;
+}
+
+/* === GRIDS DE MÉTRICAS === */
+.metrics-grid {
+  display: grid;
+  gap: var(--space-md);
+}
+
+/* Grid principal (3 tarjetas) */
+.hero-grid {
+  grid-template-columns: 1fr;
+}
+
+/* Grid P2P (2 tarjetas) */
+.p2p-grid {
+  grid-template-columns: 1fr 1fr;
+}
+
+/* Grid de brechas (3 tarjetas) */
+.gap-grid {
+  grid-template-columns: 1fr;
+}
+
+/* === TARJETAS DE MÉTRICAS (GLASSMORPHISM) === */
+.metric-card {
+  position: relative;
+  padding: var(--space-lg);
+  border-radius: var(--radius-lg);
+  background: var(--bg-card);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: fadeInUp 0.6s ease-out both;
+}
+
+/* Animación escalonada de entrada */
+.metric-card:nth-child(1) { animation-delay: 0.05s; }
+.metric-card:nth-child(2) { animation-delay: 0.12s; }
+.metric-card:nth-child(3) { animation-delay: 0.19s; }
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Efecto de brillo en hover */
+.metric-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    transparent 30%,
+    rgba(74, 125, 255, 0.2) 50%,
+    transparent 70%
+  );
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.metric-card:hover::before {
+  opacity: 1;
+}
+
+.metric-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: var(--shadow-glow);
+}
+
+/* Glow interno de la tarjeta */
+.card-glow {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle at center,
+    rgba(74, 125, 255, 0.06) 0%,
+    transparent 60%
+  );
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  pointer-events: none;
+}
+
+.metric-card:hover .card-glow {
+  opacity: 1;
+}
+
+/* Tarjeta destacada (USDT Promedio) */
+.metric-card.featured {
+  border-color: rgba(6, 182, 212, 0.25);
+  background: rgba(25, 30, 70, 0.7);
+}
+
+.metric-card.featured .card-glow {
+  background: radial-gradient(
+    circle at center,
+    rgba(6, 182, 212, 0.08) 0%,
+    transparent 60%
+  );
+}
+
+/* Flash de actualización */
+.metric-card.card-updated {
+  animation: cardFlash 1.2s ease;
+}
+
+@keyframes cardFlash {
+  0% { box-shadow: 0 0 0 rgba(74, 125, 255, 0); }
+  30% { box-shadow: 0 0 25px rgba(74, 125, 255, 0.2); }
+  100% { box-shadow: none; }
+}
+
+/* Partes de la tarjeta */
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-sm);
+}
+
+.card-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  text-transform: uppercase;
+}
+
+.badge-blue {
+  background: rgba(74, 125, 255, 0.15);
+  color: var(--accent-blue);
+  border: 1px solid rgba(74, 125, 255, 0.25);
+}
+
+.badge-purple {
+  background: rgba(124, 58, 237, 0.15);
+  color: var(--accent-purple);
+  border: 1px solid rgba(124, 58, 237, 0.25);
+}
+
+.badge-cyan {
+  background: rgba(6, 182, 212, 0.15);
+  color: var(--accent-cyan);
+  border: 1px solid rgba(6, 182, 212, 0.25);
+}
+
+.badge-green {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--accent-green);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.badge-red {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--accent-red);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.badge-yellow {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--accent-yellow);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+/* Tendencia (flechas) */
+.card-trend {
+  font-size: 1rem;
+  font-weight: 700;
+  transition: color 0.3s ease;
+}
+
+.trend-up {
+  color: var(--accent-green);
+}
+
+.trend-down {
+  color: var(--accent-red);
+}
+
+.trend-neutral {
+  color: var(--text-secondary);
+}
+
+/* Cuerpo de la tarjeta */
+.card-body {
+  margin-bottom: var(--space-sm);
+}
+
+.card-label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-xs);
+  letter-spacing: 0.3px;
+}
+
+.card-value-wrapper {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.card-prefix {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.card-suffix {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.card-value {
+  font-family: var(--font-heading);
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.5px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+/* Colores para valores de brecha */
+.gap-value.gap-positive {
+  color: var(--accent-green);
+  text-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+}
+
+.gap-value.gap-neutral {
+  color: var(--accent-yellow);
+  text-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
+}
+
+.gap-value.gap-negative {
+  color: var(--accent-red);
+  text-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+}
+
+/* Pie de la tarjeta */
+.card-footer {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  opacity: 0.6;
+}
+
+.card-source {
+  letter-spacing: 0.2px;
+}
+
+/* === BARRA VISUAL DE BRECHA === */
+.gap-bar-container {
+  width: 100%;
+  height: 4px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+.gap-bar {
+  height: 100%;
+  width: 0%;
+  border-radius: 10px;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1), background 0.4s ease;
+}
+
+.gap-bar-positive {
+  background: linear-gradient(90deg, var(--accent-green), rgba(16, 185, 129, 0.6));
+}
+
+.gap-bar-neutral {
+  background: linear-gradient(90deg, var(--accent-yellow), rgba(245, 158, 11, 0.6));
+}
+
+.gap-bar-negative {
+  background: linear-gradient(90deg, var(--accent-red), rgba(239, 68, 68, 0.6));
+}
+
+/* Color de brecha para el borde de la tarjeta */
+.metric-card[data-gap-level="positive"] {
+  border-color: rgba(16, 185, 129, 0.2);
+}
+
+.metric-card[data-gap-level="neutral"] {
+  border-color: rgba(245, 158, 11, 0.2);
+}
+
+.metric-card[data-gap-level="negative"] {
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+/* === TARJETA GLASSMORPHISM GENÉRICA === */
+.glass-card {
+  border-radius: var(--radius-lg);
+  background: var(--bg-card);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  padding: var(--space-lg);
+  animation: fadeInUp 0.6s ease-out both;
+  animation-delay: 0.3s;
+}
+
+/* === SECCIÓN GRÁFICO === */
+.chart-container {
+  position: relative;
+  height: 320px;
+  min-height: 280px;
+}
+
+.chart-container canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* === SECCIÓN TABLA HISTORIAL === */
+.table-container {
+  overflow: hidden;
+}
+
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.history-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.85rem;
+}
+
+.history-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  text-align: left;
+  padding: var(--space-md);
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  background: rgba(18, 18, 42, 0.95);
+  border-bottom: 1px solid var(--glass-border);
+  white-space: nowrap;
+}
+
+.history-table tbody tr {
+  transition: background 0.3s ease;
+}
+
+.history-table tbody tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.history-table tbody tr:hover {
+  background: rgba(74, 125, 255, 0.06);
+}
+
+.history-table tbody td {
+  padding: var(--space-md);
+  color: var(--text-primary);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.history-table tbody td:first-child {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+}
+
+/* Clase de color para la brecha en la tabla */
+.table-gap-positive {
+  color: var(--accent-green) !important;
+}
+
+.table-gap-neutral {
+  color: var(--accent-yellow) !important;
+}
+
+.table-gap-negative {
+  color: var(--accent-red) !important;
+}
+
+/* === FOOTER === */
+.app-footer {
+  border-top: 1px solid var(--glass-border);
+  padding: var(--space-xl) var(--space-lg);
+  text-align: center;
+}
+
+.footer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.footer-text {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-xs);
+}
+
+.footer-brand {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.footer-credits {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  opacity: 0.5;
+}
+
+/* ====================================================================
+   RESPONSIVE — Mobile First
+   ==================================================================== */
+
+/* Pantallas pequeñas (> 360px) — Ajustes básicos */
+@media (min-width: 360px) {
+  .card-value {
+    font-size: 2rem;
+  }
+}
+
+/* Tablets pequeñas (> 480px) */
+@media (min-width: 480px) {
+  .gap-grid {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+
+  .card-value {
+    font-size: 2.1rem;
+  }
+}
+
+/* Tablets (> 640px) */
+@media (min-width: 640px) {
+  .hero-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  /* La tarjeta USDT destacada ocupa toda la fila */
+  .hero-grid .metric-card:nth-child(3) {
+    grid-column: 1 / -1;
+  }
+
+  .main-content {
+    padding: var(--space-xl);
+  }
+
+  .chart-container {
+    height: 380px;
+  }
+}
+
+/* Laptops (> 768px) */
+@media (min-width: 768px) {
+  .brand-name {
+    font-size: 1.7rem;
+  }
+
+  .hero-grid {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+
+  .hero-grid .metric-card:nth-child(3) {
+    grid-column: auto;
+  }
+
+  .card-value {
+    font-size: 2.3rem;
+  }
+
+  .metric-card {
+    padding: var(--space-xl);
+  }
+
+  .chart-container {
+    height: 420px;
+  }
+}
+
+/* Desktop (> 1024px) */
+@media (min-width: 1024px) {
+  .main-content {
+    padding: var(--space-2xl);
+  }
+
+  .metrics-grid {
+    gap: var(--space-lg);
+  }
+
+  .card-value {
+    font-size: 2.5rem;
+  }
+
+  .chart-container {
+    height: 460px;
+  }
+}
+
+/* Desktop grande (> 1280px) */
+@media (min-width: 1280px) {
+  .brand-name {
+    font-size: 1.8rem;
+  }
+}
+
+/* ====================================================================
+   ANIMACIONES ADICIONALES Y UTILIDADES
+   ==================================================================== */
+
+/* Animación suave al instalar (botón) */
+.install-btn {
+  background: var(--gradient-primary);
+  color: white;
+  border: none;
+}
+
+.install-btn:hover {
+  box-shadow: 0 0 20px rgba(74, 125, 255, 0.3);
+}
+
+/* Animación para números al actualizarse */
+@keyframes numberPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.value-updated {
+  animation: numberPop 0.3s ease;
+}
+
+/* Animación de fade genérica */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Soporte para reducción de movimiento */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .animated-bg::before {
+    animation: none;
+  }
+}
+
+/* Soporte para modo oscuro forzado del sistema */
+@media (prefers-color-scheme: light) {
+  /* Mantenemos tema oscuro siempre — es parte de la identidad de la app */
+}
