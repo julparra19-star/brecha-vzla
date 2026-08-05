@@ -298,21 +298,33 @@ const KEEPALIVE_INTERVAL_MS = 10 * 60 * 1000; // 10 minutos
 if (RENDER_URL) {
   setInterval(async () => {
     try {
-      const pingUrl = `${RENDER_URL}/api/rates`;
-      const response = await fetch(pingUrl, { signal: AbortSignal.timeout(10000) });
-      if (response.ok) {
-        console.log(`[Keep-Alive] 💓 Ping exitoso a ${pingUrl} - ${new Date().toLocaleTimeString('es-VE')}`);
+      // Doble función: mantener el servidor despierto Y guardar datos históricos
+      // Esto da a la calculadora datos cada 10 min para proyecciones más precisas
+      if (isConfigured()) {
+        // Con Supabase configurado: guardar tasas (también hace el ping)
+        const [bcvData, binanceData] = await Promise.all([fetchBCVRates(), fetchBinanceP2P()]);
+        const result = calculateGaps(bcvData, binanceData);
+        const saved = await saveRates(result);
+        const hora = new Date().toLocaleTimeString('es-VE');
+        if (saved) {
+          console.log(`[Keep-Alive] 💓 Datos guardados en Supabase - ${hora}`);
+        } else {
+          console.warn(`[Keep-Alive] ⚠️  Ping OK pero fallo al guardar - ${hora}`);
+        }
       } else {
-        console.warn(`[Keep-Alive] ⚠️  Ping respondió con status ${response.status}`);
+        // Sin Supabase: solo ping para no dormirse
+        const pingUrl = `${RENDER_URL}/api/rates`;
+        const response = await fetch(pingUrl, { signal: AbortSignal.timeout(10000) });
+        console.log(`[Keep-Alive] 💓 Ping - status ${response.status} - ${new Date().toLocaleTimeString('es-VE')}`);
       }
     } catch (error) {
-      console.warn('[Keep-Alive] ⚠️  Error en ping:', error.message);
+      console.warn('[Keep-Alive] ⚠️  Error:', error.message);
     }
   }, KEEPALIVE_INTERVAL_MS);
 
-  console.log(`[Keep-Alive] 🔁 Auto-ping activado cada 10 min → ${RENDER_URL}`);
+  console.log(`[Keep-Alive] 🔁 Activo: guarda datos cada 10 min → ${RENDER_URL}`);
 } else {
-  console.log('[Keep-Alive] ℹ️  Sin RENDER_EXTERNAL_URL (entorno local, no se necesita ping)');
+  console.log('[Keep-Alive] ℹ️  Sin RENDER_EXTERNAL_URL (local, no se necesita)');
 }
 
 // =============================================================================
