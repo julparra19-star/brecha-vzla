@@ -69,9 +69,11 @@ function agruparPorDia(historial) {
  * @param {number} dias - Días a proyectar
  * @param {Array} historial - Datos históricos de Supabase
  * @param {Object} tasasActuales - Tasas en tiempo real { bcv, binance, brechas }
+ * @param {number|null} buyPriceManual - Precio manual al que el usuario compra USDT hoy
+ * @param {number|null} sellPriceManual - Precio manual al que el usuario venderá USDT en el futuro
  * @returns {Object} Análisis completo con recomendación
  */
-function calcularProyeccion(monto, dias, historial, tasasActuales) {
+function calcularProyeccion(monto, dias, historial, tasasActuales, buyPriceManual = null, sellPriceManual = null) {
   const { bcv, binance } = tasasActuales;
 
   const usdBcvHoy = bcv?.usd || 0;
@@ -103,18 +105,27 @@ function calcularProyeccion(monto, dias, historial, tasasActuales) {
     else tendencias.confianza = 'baja';
   }
 
-  // === PROYECCIONES ===
+  // === PROYECCIONES DE MERCADO ===
+  // Estas proyecciones representan el mercado real (Binance), sin importar el precio manual del usuario
   const usdBcvFuturo = Math.max(usdBcvHoy + tendencias.usd_bcv * dias, 1);
   const usdtCompraFuturo = Math.max(usdtCompraHoy + tendencias.usdt_compra * dias, 1);
   const usdtVentaFuturo = Math.max(usdtVentaHoy + tendencias.usdt_venta * dias, 1);
 
-  // === ESCENARIO A: Comprar USDT hoy (a precio VENTA) y vender en X días (a precio COMPRA) ===
-  const usdtComprados = monto / usdtVentaHoy;
-  const bsRecuperadosBinance = usdtComprados * usdtCompraFuturo;
+  // === PRECIOS EFECTIVOS PARA EL USUARIO ===
+  // Si el usuario da un precio manual, lo usamos; si no, usamos el del mercado.
+  // El usuario COMPRA USDT hoy usando el precio de VENTA del mercado.
+  // El usuario VENDE USDT a futuro usando el precio de COMPRA del mercado.
+  const precioUsuarioCompraHoy = buyPriceManual || usdtVentaHoy;
+  const precioUsuarioVentaFuturo = sellPriceManual || usdtCompraFuturo;
+
+  // === ESCENARIO A: Comprar USDT hoy y vender en X días ===
+  const usdtComprados = monto / precioUsuarioCompraHoy;
+  const bsRecuperadosBinance = usdtComprados * precioUsuarioVentaFuturo;
   const gananciaBinance = bsRecuperadosBinance - monto;
   const rentabilidadBinance = (gananciaBinance / monto) * 100;
 
   // Costo del spread (diferencia compra/venta al entrar y salir)
+  // Spread real del mercado (informativo)
   const spreadActual = ((usdtVentaHoy - usdtCompraHoy) / usdtCompraHoy) * 100;
   const spreadFuturo = ((usdtVentaFuturo - usdtCompraFuturo) / usdtCompraFuturo) * 100;
 
@@ -156,14 +167,14 @@ function calcularProyeccion(monto, dias, historial, tasasActuales) {
     entrada: { monto, dias },
     tasas_hoy: {
       usd_bcv: usdBcvHoy,
-      usdt_compra: usdtCompraHoy,
-      usdt_venta: usdtVentaHoy,
+      usdt_compra: usdtCompraHoy, // El mercado P2P
+      usdt_venta: usdtVentaHoy,   // El mercado P2P
       spread_actual_pct: parseFloat(spreadActual.toFixed(3)),
     },
     proyeccion: {
       usd_bcv_futuro: parseFloat(usdBcvFuturo.toFixed(3)),
-      usdt_compra_futuro: parseFloat(usdtCompraFuturo.toFixed(3)),
-      usdt_venta_futuro: parseFloat(usdtVentaFuturo.toFixed(3)),
+      usdt_compra_futuro: parseFloat(usdtCompraFuturo.toFixed(3)), // Proyección del mercado
+      usdt_venta_futuro: parseFloat(usdtVentaFuturo.toFixed(3)),   // Proyección del mercado
     },
     escenario_usdt: {
       usdt_comprados_hoy: parseFloat(usdtComprados.toFixed(6)),

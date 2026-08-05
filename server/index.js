@@ -227,20 +227,7 @@ app.get('/api/calculator', async (req, res) => {
 
     const tasasActuales = calculateGaps(bcvData, binanceData);
 
-    // Sobrescribir precios de Binance con valores manuales si se proveyeron
-    // En P2P: El usuario COMPRA al precio de VENTA de los comerciantes (usdt_venta)
-    //         El usuario VENDE al precio de COMPRA de los comerciantes (usdt_compra)
-    if (buyPriceManual && tasasActuales.binance) {
-      tasasActuales.binance.venta = buyPriceManual;
-    }
-    if (sellPriceManual && tasasActuales.binance) {
-      tasasActuales.binance.compra = sellPriceManual;
-    }
-    if ((buyPriceManual || sellPriceManual) && tasasActuales.binance) {
-      tasasActuales.binance.promedio = (tasasActuales.binance.venta + tasasActuales.binance.compra) / 2;
-    }
-
-    const resultado = calcularProyeccion(monto, dias, historial, tasasActuales);
+    const resultado = calcularProyeccion(monto, dias, historial, tasasActuales, buyPriceManual, sellPriceManual);
     // Marcar si se usaron precios manuales
     resultado.precios_manuales = !!(buyPriceManual || sellPriceManual);
 
