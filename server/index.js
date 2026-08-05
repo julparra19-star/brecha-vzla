@@ -253,6 +253,34 @@ cron.schedule(CRON_SCHEDULE, async () => {
 console.log(`[CRON] 📅 Tarea programada: ${CRON_SCHEDULE} (9:00, 12:00, 18:00)`);
 
 // =============================================================================
+// Keep-Alive: Evita que Render duerma el servidor en el plan gratuito
+// Hace un ping a sí mismo cada 10 minutos usando su propia URL pública
+// RENDER_EXTERNAL_URL es provista automáticamente por Render en producción
+// =============================================================================
+const RENDER_URL = process.env.RENDER_EXTERNAL_URL;
+const KEEPALIVE_INTERVAL_MS = 10 * 60 * 1000; // 10 minutos
+
+if (RENDER_URL) {
+  setInterval(async () => {
+    try {
+      const pingUrl = `${RENDER_URL}/api/rates`;
+      const response = await fetch(pingUrl, { signal: AbortSignal.timeout(10000) });
+      if (response.ok) {
+        console.log(`[Keep-Alive] 💓 Ping exitoso a ${pingUrl} - ${new Date().toLocaleTimeString('es-VE')}`);
+      } else {
+        console.warn(`[Keep-Alive] ⚠️  Ping respondió con status ${response.status}`);
+      }
+    } catch (error) {
+      console.warn('[Keep-Alive] ⚠️  Error en ping:', error.message);
+    }
+  }, KEEPALIVE_INTERVAL_MS);
+
+  console.log(`[Keep-Alive] 🔁 Auto-ping activado cada 10 min → ${RENDER_URL}`);
+} else {
+  console.log('[Keep-Alive] ℹ️  Sin RENDER_EXTERNAL_URL (entorno local, no se necesita ping)');
+}
+
+// =============================================================================
 // Iniciar servidor
 // =============================================================================
 app.listen(PORT, () => {
@@ -263,6 +291,7 @@ app.listen(PORT, () => {
   console.log(`  📡 API disponible en:     http://localhost:${PORT}/api`);
   console.log(`  💾 Supabase:              ${isConfigured() ? '✅ Configurado' : '⚠️  No configurado'}`);
   console.log(`  ⏰ Cron:                  ${CRON_SCHEDULE}`);
+  console.log(`  💓 Keep-Alive:            ${RENDER_URL ? 'Activo (cada 10 min)' : 'Inactivo (local)'}`);
   console.log('='.repeat(60));
 });
 
