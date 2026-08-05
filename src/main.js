@@ -231,7 +231,7 @@ function renderHistoryTable(historyData) {
     const row = document.createElement('tr');
 
     // Extraer valores según la estructura (plana o anidada)
-    const fecha = formatDate(record.timestamp || record.fecha || '');
+    const fecha = formatDate(record.created_at || record.timestamp || record.fecha || '');
     const usdBcv = record.bcv ? record.bcv.usd : (record.usd_bcv || record.usd || 0);
     const eurBcv = record.bcv ? record.bcv.eur : (record.eur_bcv || record.eur || 0);
     const usdtProm = record.binance ? record.binance.promedio : (record.usdt_promedio || record.promedio || 0);
