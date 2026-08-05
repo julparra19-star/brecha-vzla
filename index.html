@@ -320,6 +320,176 @@
 
   </main>
 
+  <!-- ==================== SECCIÓN CALCULADORA ==================== -->
+  <section class="calc-section" id="calculadora">
+    <div class="calc-inner">
+      <h2 class="section-title">
+        <span class="section-icon">🧮</span>
+        Calculadora de Proyección
+      </h2>
+      <p class="calc-subtitle">¿Es buen momento para comprar USDT? Ingresa tu monto y el plazo, y te diremos qué esperar.</p>
+
+      <!-- Formulario de entrada -->
+      <div class="calc-form glass-card">
+        <div class="calc-inputs">
+          <div class="calc-input-group">
+            <label class="calc-label" for="calc-amount">Monto a invertir</label>
+            <div class="calc-input-wrapper">
+              <span class="calc-input-prefix">Bs.</span>
+              <input
+                type="number"
+                id="calc-amount"
+                class="calc-input"
+                placeholder="100.000"
+                min="1"
+                max="999999999"
+                step="1000"
+              >
+            </div>
+          </div>
+
+          <div class="calc-input-group">
+            <label class="calc-label" for="calc-days">Días a proyectar</label>
+            <div class="calc-days-grid">
+              <button class="calc-day-btn" data-days="3">3 días</button>
+              <button class="calc-day-btn" data-days="5">5 días</button>
+              <button class="calc-day-btn" data-days="7">7 días</button>
+              <button class="calc-day-btn" data-days="15">15 días</button>
+            </div>
+            <div class="calc-input-wrapper" style="margin-top: 0.5rem;">
+              <span class="calc-input-prefix">📅</span>
+              <input
+                type="number"
+                id="calc-days"
+                class="calc-input"
+                placeholder="Personalizado"
+                min="1"
+                max="90"
+                step="1"
+              >
+            </div>
+          </div>
+        </div>
+
+        <button id="btn-calcular" class="calc-btn">
+          <span class="calc-btn-icon">⚡</span>
+          Calcular Proyección
+        </button>
+      </div>
+
+      <!-- Resultados (ocultos hasta que se calcula) -->
+      <div id="calc-resultados" class="calc-resultados hidden">
+
+        <!-- Veredicto principal -->
+        <div id="calc-veredicto" class="calc-veredicto glass-card">
+          <div class="veredicto-icon" id="veredicto-icon">🤔</div>
+          <div class="veredicto-texto">
+            <h3 id="veredicto-titulo" class="veredicto-titulo">Analizando…</h3>
+            <p id="veredicto-descripcion" class="veredicto-descripcion"></p>
+          </div>
+          <div class="veredicto-badge" id="veredicto-badge"></div>
+        </div>
+
+        <!-- Métricas de la proyección -->
+        <div class="calc-metricas">
+
+          <!-- Escenario USDT Binance -->
+          <div class="calc-metrica-card glass-card">
+            <div class="metrica-header">
+              <span class="metrica-icon">🔄</span>
+              <span class="metrica-titulo">Comprar USDT hoy en Binance</span>
+            </div>
+            <div class="metrica-cuerpo">
+              <div class="metrica-fila">
+                <span class="metrica-label">USDT que compras hoy</span>
+                <span class="metrica-valor" id="calc-usdt-comprados">—</span>
+              </div>
+              <div class="metrica-fila">
+                <span class="metrica-label">Bs. que recuperas en <span class="calc-dias-texto">N</span> días</span>
+                <span class="metrica-valor" id="calc-bs-recuperados">—</span>
+              </div>
+              <div class="metrica-fila destacada">
+                <span class="metrica-label">Ganancia / Pérdida</span>
+                <span class="metrica-valor" id="calc-ganancia-bs">—</span>
+              </div>
+              <div class="metrica-fila">
+                <span class="metrica-label">Rentabilidad</span>
+                <span class="metrica-valor bold" id="calc-rentabilidad">—</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Escenario BCV -->
+          <div class="calc-metrica-card glass-card">
+            <div class="metrica-header">
+              <span class="metrica-icon">🏦</span>
+              <span class="metrica-titulo">Referencia BCV (USD oficial)</span>
+            </div>
+            <div class="metrica-cuerpo">
+              <div class="metrica-fila">
+                <span class="metrica-label">USD BCV hoy</span>
+                <span class="metrica-valor" id="calc-usd-hoy">—</span>
+              </div>
+              <div class="metrica-fila">
+                <span class="metrica-label">USD BCV proyectado</span>
+                <span class="metrica-valor" id="calc-usd-futuro">—</span>
+              </div>
+              <div class="metrica-fila destacada">
+                <span class="metrica-label">Ganancia si usaras BCV</span>
+                <span class="metrica-valor" id="calc-ganancia-bcv">—</span>
+              </div>
+              <div class="metrica-fila">
+                <span class="metrica-label">Ventaja Binance vs BCV</span>
+                <span class="metrica-valor bold" id="calc-ventaja-bcv">—</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tendencias y confianza -->
+          <div class="calc-metrica-card glass-card">
+            <div class="metrica-header">
+              <span class="metrica-icon">📊</span>
+              <span class="metrica-titulo">Tendencia diaria detectada</span>
+            </div>
+            <div class="metrica-cuerpo">
+              <div class="metrica-fila">
+                <span class="metrica-label">Cambio diario USDT compra</span>
+                <span class="metrica-valor" id="calc-tend-compra">—</span>
+              </div>
+              <div class="metrica-fila">
+                <span class="metrica-label">Cambio diario USDT venta</span>
+                <span class="metrica-valor" id="calc-tend-venta">—</span>
+              </div>
+              <div class="metrica-fila">
+                <span class="metrica-label">Días de historial analizados</span>
+                <span class="metrica-valor" id="calc-dias-analizados">—</span>
+              </div>
+              <div class="metrica-fila">
+                <span class="metrica-label">Confianza del modelo</span>
+                <span class="metrica-badge" id="calc-confianza">—</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Advertencia de confianza baja -->
+        <div id="calc-advertencia" class="calc-advertencia hidden">
+          ⚠️ <strong>Datos históricos limitados:</strong> La proyección se basa en pocas muestras. Los resultados serán más precisos a medida que el sistema acumule más datos (mínimo 7 días recomendados).
+        </div>
+
+      </div>
+
+      <!-- Estado de carga de la calculadora -->
+      <div id="calc-loading" class="calc-loading hidden">
+        <div class="loader-ring"></div>
+        <span>Calculando proyección…</span>
+      </div>
+
+    </div>
+  </section>
+
+
   <!-- ==================== FOOTER ==================== -->
   <footer class="app-footer">
     <div class="footer-inner">

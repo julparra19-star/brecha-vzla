@@ -21,6 +21,7 @@ import {
   getGapColorClass,
 } from './components/dashboard.js';
 import { initChart, updateChart } from './components/chart.js';
+import { initCalculadora } from './components/calculator_ui.js';
 
 // === CONSTANTES ===
 
@@ -51,6 +52,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 2. Inicializar gráfico
   initChart('rates-chart');
+
+  // 3. Inicializar calculadora de proyección
+  initCalculadora();
 
   // 3. Cargar datos iniciales
   initDashboard();

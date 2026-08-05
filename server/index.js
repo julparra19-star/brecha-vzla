@@ -16,6 +16,7 @@ const { fetchBCVRates } = require('./services/bcv');
 const { fetchBinanceP2P } = require('./services/binance');
 const { calculateGaps } = require('./services/calculator');
 const { saveRates, getHistory, isConfigured } = require('./services/supabase');
+const { calcularProyeccion } = require('./services/calculator_projection');
 
 // Configuración del servidor
 const PORT = process.env.PORT || 3000;
@@ -193,6 +194,40 @@ app.post('/api/save-rates', async (req, res) => {
       error: 'Error interno del servidor',
       message: error.message,
     });
+  }
+});
+
+/**
+ * GET /api/calculator
+ * Proyecta el valor futuro de un monto dado X días hacia el futuro
+ * Query params: amount (Bs.), days (días a proyectar)
+ */
+app.get('/api/calculator', async (req, res) => {
+  try {
+    const monto = parseFloat(req.query.amount);
+    const dias = parseInt(req.query.days);
+
+    // Validar parámetros
+    if (!monto || monto <= 0) {
+      return res.status(400).json({ error: 'El parámetro "amount" debe ser un número positivo' });
+    }
+    if (!dias || dias < 1 || dias > 90) {
+      return res.status(400).json({ error: 'El parámetro "days" debe estar entre 1 y 90' });
+    }
+
+    // Obtener datos en paralelo: tasas actuales + historial
+    const [[bcvData, binanceData], historial] = await Promise.all([
+      Promise.all([fetchBCVRates(), fetchBinanceP2P()]),
+      getHistory(90),
+    ]);
+
+    const tasasActuales = calculateGaps(bcvData, binanceData);
+    const resultado = calcularProyeccion(monto, dias, historial, tasasActuales);
+
+    res.json({ success: true, data: resultado });
+  } catch (error) {
+    console.error('[API /calculator] Error:', error.message);
+    res.status(500).json({ error: 'Error interno del servidor', message: error.message });
   }
 });
 
