@@ -243,18 +243,20 @@ export function updateChart(historyData) {
   const usdtPromedioData = [];
   const brechaUsdData = [];
 
-  // Iterar los registros (asumiendo orden cronológico)
-  historyData.forEach((record) => {
-    // Formatear la fecha para la etiqueta
-    const fecha = record.timestamp || record.fecha || '';
+  // Invertir el array para que el gráfico vaya del más antiguo (izquierda) al más reciente (derecha)
+  const chartData = [...historyData].reverse();
+
+  // Iterar los registros
+  chartData.forEach((record) => {
+    // Formatear la fecha para la etiqueta (buscar created_at también)
+    const fecha = record.created_at || record.timestamp || record.fecha || '';
     const fechaObj = new Date(fecha);
     const labelText = isNaN(fechaObj.getTime())
       ? fecha
       : fechaObj.toLocaleDateString('es-VE', {
           day: '2-digit',
           month: 'short',
-          hour: '2-digit',
-          minute: '2-digit',
+          // Omitimos hora/minuto para que no ocupe tanto espacio en el eje X
         });
 
     labels.push(labelText);
