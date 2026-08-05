@@ -128,17 +128,21 @@ app.get('/api/rates', async (req, res) => {
 /**
  * GET /api/history
  * Retorna el historial de tasas guardadas en Supabase
- * Query params: limit (default 50)
+ * Query params:
+ *   filter: 'last10' (default) | 'today' | 'week' | 'month'
+ *   limit:  máximo de registros (default 500)
  */
 app.get('/api/history', async (req, res) => {
   try {
-    const limit = parseInt(req.query.limit) || 50;
-    const history = await getHistory(limit);
+    const filter = req.query.filter || 'last10';
+    const limit  = parseInt(req.query.limit) || 500;
+    const history = await getHistory(limit, filter);
 
     res.json({
       success: true,
       data: history,
       count: history.length,
+      filter,
       supabase_configured: isConfigured(),
     });
   } catch (error) {
@@ -206,8 +210,9 @@ app.get('/api/calculator', async (req, res) => {
   try {
     const monto = parseFloat(req.query.amount);
     const dias = parseInt(req.query.days);
+    const buyPriceManual  = req.query.buyPrice  ? parseFloat(req.query.buyPrice)  : null;
+    const sellPriceManual = req.query.sellPrice ? parseFloat(req.query.sellPrice) : null;
 
-    // Validar parámetros
     if (!monto || monto <= 0) {
       return res.status(400).json({ error: 'El parámetro "amount" debe ser un número positivo' });
     }
@@ -215,14 +220,27 @@ app.get('/api/calculator', async (req, res) => {
       return res.status(400).json({ error: 'El parámetro "days" debe estar entre 1 y 90' });
     }
 
-    // Obtener datos en paralelo: tasas actuales + historial
     const [[bcvData, binanceData], historial] = await Promise.all([
       Promise.all([fetchBCVRates(), fetchBinanceP2P()]),
-      getHistory(90),
+      getHistory(500, 'month'),
     ]);
 
     const tasasActuales = calculateGaps(bcvData, binanceData);
+
+    // Sobrescribir precios de Binance con valores manuales si se proveyeron
+    if (buyPriceManual && tasasActuales.binance) {
+      tasasActuales.binance.compra = buyPriceManual;
+      tasasActuales.binance.promedio = sellPriceManual
+        ? (buyPriceManual + sellPriceManual) / 2
+        : buyPriceManual;
+    }
+    if (sellPriceManual && tasasActuales.binance) {
+      tasasActuales.binance.venta = sellPriceManual;
+    }
+
     const resultado = calcularProyeccion(monto, dias, historial, tasasActuales);
+    // Marcar si se usaron precios manuales
+    resultado.precios_manuales = !!(buyPriceManual || sellPriceManual);
 
     res.json({ success: true, data: resultado });
   } catch (error) {

@@ -36,6 +36,8 @@ export function initCalculadora() {
   btnCalcular.addEventListener('click', async () => {
     const monto = parseFloat(inputAmount.value);
     const dias  = parseInt(inputDays.value);
+    const precioCompra = parseFloat(document.getElementById('calc-precio-compra')?.value) || null;
+    const precioVenta  = parseFloat(document.getElementById('calc-precio-venta')?.value) || null;
 
     if (!monto || monto <= 0) {
       inputAmount.focus();
@@ -49,14 +51,18 @@ export function initCalculadora() {
       return;
     }
 
-    await ejecutarCalculo(monto, dias);
+    await ejecutarCalculo(monto, dias, precioCompra, precioVenta);
   });
 }
 
 /**
  * Llama al endpoint y renderiza los resultados
+ * @param {number} monto
+ * @param {number} dias
+ * @param {number|null} precioCompraManual - Precio real de compra (override API)
+ * @param {number|null} precioVentaManual  - Precio objetivo de venta (override proyectado)
  */
-async function ejecutarCalculo(monto, dias) {
+async function ejecutarCalculo(monto, dias, precioCompraManual = null, precioVentaManual = null) {
   const loading     = document.getElementById('calc-loading');
   const resultados  = document.getElementById('calc-resultados');
   const btnCalcular = document.getElementById('btn-calcular');
@@ -68,7 +74,9 @@ async function ejecutarCalculo(monto, dias) {
   btnCalcular.textContent = 'Calculando…';
 
   try {
-    const url = `${API_BASE}/api/calculator?amount=${monto}&days=${dias}`;
+    let url = `${API_BASE}/api/calculator?amount=${monto}&days=${dias}`;
+    if (precioCompraManual) url += `&buyPrice=${precioCompraManual}`;
+    if (precioVentaManual)  url += `&sellPrice=${precioVentaManual}`;
     const resp = await fetch(url, { signal: AbortSignal.timeout(20000) });
 
     if (!resp.ok) {

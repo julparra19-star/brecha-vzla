@@ -1293,3 +1293,69 @@ body {
   padding: var(--space-xl);
   color: var(--text-secondary);
 }
+
+/* =============================================================
+   FILTROS DE TIEMPO (Tabla + Gráfico)
+   ============================================================= */
+
+.section-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.section-header-row .section-title {
+  margin-bottom: 0;
+}
+
+.filter-bar {
+  display: flex;
+  gap: var(--space-xs);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  padding: 4px;
+}
+
+.filter-btn {
+  padding: 0.35rem 0.85rem;
+  border: none;
+  border-radius: calc(var(--radius-md) - 4px);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.filter-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255,255,255,0.05);
+}
+
+.filter-btn.active {
+  background: var(--gradient-primary);
+  color: white;
+  box-shadow: 0 2px 8px rgba(74, 125, 255, 0.3);
+}
+
+/* Hint text en calculadora */
+.calc-hint {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  opacity: 0.7;
+  margin-top: 0.25rem;
+  display: block;
+  line-height: 1.4;
+}
+
+.calc-manual-prices {
+  margin-top: -0.5rem;
+  padding-top: var(--space-md);
+  border-top: 1px dashed var(--glass-border);
+}

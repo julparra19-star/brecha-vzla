@@ -280,10 +280,18 @@
 
     <!-- === SECCIÓN GRÁFICO === -->
     <section class="section chart-section">
-      <h2 class="section-title">
-        <span class="section-icon">📈</span>
-        Historial de Tasas
-      </h2>
+      <div class="section-header-row">
+        <h2 class="section-title">
+          <span class="section-icon">📈</span>
+          Historial de Tasas
+        </h2>
+        <div class="filter-bar" id="chart-filter-bar">
+          <button class="filter-btn active" data-filter="last10">Últimos 10</button>
+          <button class="filter-btn" data-filter="today">Hoy</button>
+          <button class="filter-btn" data-filter="week">Semana</button>
+          <button class="filter-btn" data-filter="month">Mes</button>
+        </div>
+      </div>
       <div class="chart-container glass-card">
         <canvas id="rates-chart"></canvas>
       </div>
@@ -291,10 +299,18 @@
 
     <!-- === SECCIÓN HISTORIAL / TABLA === -->
     <section class="section history-section">
-      <h2 class="section-title">
-        <span class="section-icon">🕐</span>
-        Registro Histórico
-      </h2>
+      <div class="section-header-row">
+        <h2 class="section-title">
+          <span class="section-icon">🕐</span>
+          Registro Histórico
+        </h2>
+        <div class="filter-bar" id="table-filter-bar">
+          <button class="filter-btn active" data-filter="last10">Últimos 10</button>
+          <button class="filter-btn" data-filter="today">Hoy</button>
+          <button class="filter-btn" data-filter="week">Semana</button>
+          <button class="filter-btn" data-filter="month">Mes</button>
+        </div>
+      </div>
       <div class="table-container glass-card">
         <div class="table-scroll">
           <table class="history-table" id="history-table">
@@ -368,6 +384,26 @@
                 step="1"
               >
             </div>
+          </div>
+        </div>
+
+        <!-- Precios manuales opcionales -->
+        <div class="calc-inputs calc-manual-prices">
+          <div class="calc-input-group">
+            <label class="calc-label">💰 Precio real de compra (opcional)</label>
+            <div class="calc-input-wrapper">
+              <span class="calc-input-prefix">Bs.</span>
+              <input type="number" id="calc-precio-compra" class="calc-input" placeholder="Precio que ves en Binance ahora" min="1" step="0.01">
+            </div>
+            <span class="calc-hint">⚠️ El precio P2P real suele ser mayor al de la API. Ingrésalo aquí para mayor precisión.</span>
+          </div>
+          <div class="calc-input-group">
+            <label class="calc-label">🎯 Precio objetivo de venta (opcional)</label>
+            <div class="calc-input-wrapper">
+              <span class="calc-input-prefix">Bs.</span>
+              <input type="number" id="calc-precio-venta" class="calc-input" placeholder="Precio al que planeas vender" min="1" step="0.01">
+            </div>
+            <span class="calc-hint">Si lo dejas vacío, se usa el precio proyectado por el modelo.</span>
           </div>
         </div>
 

@@ -73,9 +73,8 @@ export async function fetchRates() {
  * Endpoint: GET /api/history
  * @returns {Promise<Array|null>} Array de registros históricos
  */
-export async function fetchHistory() {
-  const response = await fetchEndpoint('/api/history');
-  // Extraer el array de datos del wrapper
+export async function fetchHistory(filter = 'last10') {
+  const response = await fetchEndpoint(`/api/history?filter=${filter}`);
   return response?.data || response || [];
 }
 

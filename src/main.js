@@ -56,7 +56,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // 3. Inicializar calculadora de proyección
   initCalculadora();
 
-  // 3. Cargar datos iniciales
+  // 4. Inicializar filtros de tiempo
+  initFilterButtons();
+
+  // 5. Cargar datos iniciales
   initDashboard();
 
   // 4. Configurar auto-refresco cada 5 minutos
@@ -181,9 +184,10 @@ async function fetchAndUpdateDashboard() {
 
 /**
  * Obtiene el historial y actualiza la tabla y el gráfico
+ * @param {string} filter - 'last10'|'today'|'week'|'month'
  */
-async function fetchAndUpdateHistory() {
-  const history = await fetchHistory();
+async function fetchAndUpdateHistory(filter = 'last10') {
+  const history = await fetchHistory(filter);
 
   if (!history || !Array.isArray(history)) {
     console.error('[Dashboard] No se pudo obtener el historial');
@@ -195,6 +199,34 @@ async function fetchAndUpdateHistory() {
 
   // Actualizar gráfico
   updateChart(history);
+}
+
+/**
+ * Inicializa los botones de filtro de tiempo para tabla y gráfico
+ */
+function initFilterButtons() {
+  // Ambos filter-bars sincronizan juntos
+  const allFilterBars = ['table-filter-bar', 'chart-filter-bar'];
+
+  allFilterBars.forEach((barId) => {
+    const bar = document.getElementById(barId);
+    if (!bar) return;
+
+    bar.querySelectorAll('.filter-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        // Marcar activo en AMBAS barras
+        allFilterBars.forEach((id) => {
+          const b = document.getElementById(id);
+          if (b) b.querySelectorAll('.filter-btn').forEach((b2) => {
+            b2.classList.toggle('active', b2.dataset.filter === btn.dataset.filter);
+          });
+        });
+
+        // Recargar historial con el filtro seleccionado
+        fetchAndUpdateHistory(btn.dataset.filter);
+      });
+    });
+  });
 }
 
 // ============================================================
