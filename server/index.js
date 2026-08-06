@@ -305,24 +305,22 @@ const KEEPALIVE_INTERVAL_MS = 10 * 60 * 1000; // 10 minutos
 if (RENDER_URL) {
   setInterval(async () => {
     try {
-      // Doble función: mantener el servidor despierto Y guardar datos históricos
-      // Esto da a la calculadora datos cada 10 min para proyecciones más precisas
-      if (isConfigured()) {
-        // Con Supabase configurado: guardar tasas (también hace el ping)
-        const [bcvData, binanceData] = await Promise.all([fetchBCVRates(), fetchBinanceP2P()]);
-        const result = calculateGaps(bcvData, binanceData);
-        const saved = await saveRates(result);
-        const hora = new Date().toLocaleTimeString('es-VE');
-        if (saved) {
-          console.log(`[Keep-Alive] 💓 Datos guardados en Supabase - ${hora}`);
-        } else {
-          console.warn(`[Keep-Alive] ⚠️  Ping OK pero fallo al guardar - ${hora}`);
-        }
+      // Doble función: mantener el servidor despierto (mediante tráfico externo) 
+      // Y guardar datos históricos si Supabase está configurado.
+      // Es vital usar 'fetch' hacia la URL externa para que Render detecte actividad.
+      const pingUrl = isConfigured() ? `${RENDER_URL}/api/save-rates` : `${RENDER_URL}/api/rates`;
+      const method = isConfigured() ? 'POST' : 'GET';
+      
+      const response = await fetch(pingUrl, { 
+        method,
+        signal: AbortSignal.timeout(20000) 
+      });
+
+      const hora = new Date().toLocaleTimeString('es-VE');
+      if (response.ok) {
+        console.log(`[Keep-Alive] 💓 Ping externo OK (${method} ${pingUrl}) - ${hora}`);
       } else {
-        // Sin Supabase: solo ping para no dormirse
-        const pingUrl = `${RENDER_URL}/api/rates`;
-        const response = await fetch(pingUrl, { signal: AbortSignal.timeout(10000) });
-        console.log(`[Keep-Alive] 💓 Ping - status ${response.status} - ${new Date().toLocaleTimeString('es-VE')}`);
+        console.warn(`[Keep-Alive] ⚠️ Ping falló con status ${response.status} - ${hora}`);
       }
     } catch (error) {
       console.warn('[Keep-Alive] ⚠️  Error:', error.message);
