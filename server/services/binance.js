@@ -21,7 +21,7 @@ function buildRequestBody(tradeType) {
     fiat: 'VES',
     tradeType: tradeType,
     page: 1,
-    rows: 10,
+    rows: 11, // Pedimos 11 para descartar el primero (outlier) y quedarnos con 10
     payTypes: [],
     merchantCheck: true, // Solo merchants verificados
   };
@@ -89,9 +89,14 @@ async function fetchBinanceP2P() {
       return { compra: null, venta: null, promedio: null };
     }
 
-    // Calcular promedios de los top 10
-    const compra = parseFloat(calculateAverage(buyPrices).toFixed(3));
-    const venta = parseFloat(calculateAverage(sellPrices).toFixed(3));
+    // Descartamos el primer resultado: en COMPRA es el más caro (outlier alto)
+    // y en VENTA es el más barato (outlier bajo), lo que distorsiona el promedio.
+    // Usamos posiciones 2..11 (índice 1 en adelante).
+    const buyFiltered  = buyPrices.slice(1);
+    const sellFiltered = sellPrices.slice(1);
+
+    const compra  = parseFloat(calculateAverage(buyFiltered  ).toFixed(3));
+    const venta   = parseFloat(calculateAverage(sellFiltered ).toFixed(3));
 
     // Promedio general entre compra y venta
     const promedio = parseFloat(((compra + venta) / 2).toFixed(3));
