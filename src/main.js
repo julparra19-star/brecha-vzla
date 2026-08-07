@@ -231,8 +231,14 @@ function initFilterButtons() {
   // Exportar Excel
   const btnExport = document.getElementById('btn-export-excel');
   if (btnExport) {
-    btnExport.addEventListener('click', () => {
-      window.location.href = '/api/export-excel';
+    btnExport.addEventListener('click', (e) => {
+      e.preventDefault(); // Prevenir cualquier comportamiento por defecto
+      const a = document.createElement('a');
+      a.href = '/api/export-excel';
+      a.download = 'historial_9am_5pm.xlsx';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
     });
   }
 }
