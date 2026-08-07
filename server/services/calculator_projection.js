@@ -324,7 +324,6 @@ function calcularProyeccion(monto, dias, historial, tasasActuales, buyPriceManua
   // === RECOMENDACIÓN ===
   const umbralRentabilidad = 0.5;
   const esBuenaDecision    = rentabilidadBinance > umbralRentabilidad;
-  const ventajaVsBCV       = rentabilidadBinance - rentabilidadBCV;
 
   let recomendacion = '';
   let nivel = '';
