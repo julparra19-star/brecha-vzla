@@ -109,7 +109,7 @@ async function ejecutarCalculo(monto, dias, precioCompraManual = null, precioVen
  */
 function renderResultados(data) {
   const { entrada, tasas_hoy, proyeccion, escenario_usdt,
-          escenario_bcv, tendencias, recomendacion } = data;
+          escenario_bcv, tendencias, recomendacion, precision_modelo } = data;
 
   const dias = entrada.dias;
 
@@ -202,6 +202,32 @@ function renderResultados(data) {
   } else {
     adv.classList.add('hidden');
   }
+
+  // --- PRECISIÓN DEL MODELO (BACKTESTING) ---
+  const precisionBox = document.getElementById('calc-backtest');
+  if (precisionBox) {
+    if (precision_modelo) {
+      const p = precision_modelo;
+      precisionBox.classList.remove('hidden');
+
+      // Barra BCV
+      renderPrecisionBar('backtest-bcv-bar',   'backtest-bcv-pct',   p.bcv.precision_pct,   p.bcv.error_promedio_pct);
+      // Barra USDT
+      renderPrecisionBar('backtest-usdt-bar',  'backtest-usdt-pct',  p.usdt.precision_pct,  p.usdt.error_promedio_pct);
+
+      setText('backtest-bcv-nota',  p.bcv.nota);
+      setText('backtest-usdt-nota', p.usdt.nota);
+      setText('backtest-muestras',  `Basado en ${p.muestras_analizadas} ventanas de ${p.dias_proyectados} días analizadas`);
+
+      // Nota sobre el BCV estancado
+      const bcvEstable = document.getElementById('backtest-bcv-estable');
+      if (bcvEstable) {
+        bcvEstable.textContent = `📅 El BCV no cambia el ${p.bcv.dias_sin_cambio_pct}% de los días (sube por escalones, no gradualmente)`;
+      }
+    } else {
+      precisionBox.classList.add('hidden');
+    }
+  }
 }
 
 // --- UTILIDADES ---
@@ -216,4 +242,28 @@ function formatNum(num) {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(num);
+}
+
+/**
+ * Dibuja una barra de precisión con color semáforo
+ * @param {string} barId     - ID del elemento barra
+ * @param {string} pctId     - ID del texto con el %
+ * @param {number} precision - 0-100, precisión del modelo
+ * @param {number} error     - % de error promedio
+ */
+function renderPrecisionBar(barId, pctId, precision, error) {
+  const bar = document.getElementById(barId);
+  const pct = document.getElementById(pctId);
+  if (!bar || !pct) return;
+
+  // Color semáforo
+  let color;
+  if (precision >= 90)      color = '#10b981'; // verde
+  else if (precision >= 75) color = '#f59e0b'; // amarillo
+  else                      color = '#ef4444'; // rojo
+
+  bar.style.width  = `${Math.min(precision, 100)}%`;
+  bar.style.background = color;
+  pct.textContent  = `${precision.toFixed(1)}% preciso (error ±${error.toFixed(1)}%)`;
+  pct.style.color  = color;
 }

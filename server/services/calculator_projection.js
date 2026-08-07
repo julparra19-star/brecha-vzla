@@ -64,6 +64,108 @@ function agruparPorDia(historial) {
 }
 
 /**
+ * BACKTESTING: Mide qué tan bien predice el modelo comparando proyecciones
+ * pasadas con la realidad. Clave para entender el "grado de confianza real".
+ *
+ * Lógica:
+ *  - Para cada día D en el historial (excepto los últimos N), tomamos todos los datos
+ *    anteriores a D, calculamos la tendencia y proyectamos N días hacia adelante.
+ *  - Comparamos esa proyección con el valor real del día D+N.
+ *  - Acumulamos el error y calculamos la precisión media.
+ *
+ * @param {Array} datosDiarios - Historial agrupado por día (cronológico)
+ * @param {number} diasProyeccion - Días que proyectamos (ej: 3, 7)
+ * @returns {Object} Métricas de precisión para BCV y Binance
+ */
+function backtestProyeccion(datosDiarios, diasProyeccion) {
+  const erroresBCV = [];
+  const erroresUSDT = [];
+  const diasBCVSinCambio = []; // Para detectar estancamiento del BCV
+
+  // Necesitamos al menos diasProyeccion+5 días para poder hacer backtest
+  const minDiasNecesarios = diasProyeccion + 5;
+  if (datosDiarios.length < minDiasNecesarios) {
+    return null; // Datos insuficientes
+  }
+
+  // Ventana mínima de datos históricos para calcular tendencia (7 días)
+  const ventanaMinima = 7;
+
+  // Iterar sobre posibles "puntos de proyección"
+  for (let i = ventanaMinima; i < datosDiarios.length - diasProyeccion; i++) {
+    // Datos disponibles hasta el día i (exclusivo)
+    const datosHasta = datosDiarios.slice(0, i);
+
+    // Calcular tendencias con esos datos
+    const tendBCV = calcularTendencia(datosHasta.map((d) => d.usd_bcv));
+    const tendUSDT = calcularTendencia(datosHasta.map((d) => d.usdt_compra));
+
+    const valorBCVHoy = datosHasta[datosHasta.length - 1].usd_bcv;
+    const valorUSDTHoy = datosHasta[datosHasta.length - 1].usdt_compra;
+
+    // Proyección N días hacia adelante
+    const proyBCV = valorBCVHoy + tendBCV * diasProyeccion;
+    const proyUSDT = valorUSDTHoy + tendUSDT * diasProyeccion;
+
+    // Valor real N días después
+    const realBCV = datosDiarios[i + diasProyeccion].usd_bcv;
+    const realUSDT = datosDiarios[i + diasProyeccion].usdt_compra;
+
+    // Error porcentual absoluto (MAPE component)
+    if (realBCV > 0) {
+      erroresBCV.push(Math.abs((proyBCV - realBCV) / realBCV) * 100);
+    }
+    if (realUSDT > 0) {
+      erroresUSDT.push(Math.abs((proyUSDT - realUSDT) / realUSDT) * 100);
+    }
+
+    // ¿Cambió el BCV ese día? (para calcular % de días con cambio real)
+    const bcvAnterior = datosHasta[datosHasta.length - 2]?.usd_bcv || valorBCVHoy;
+    diasBCVSinCambio.push(Math.abs(realBCV - bcvAnterior) < 0.01 ? 1 : 0);
+  }
+
+  if (erroresBCV.length === 0 || erroresUSDT.length === 0) return null;
+
+  // MAPE — Error porcentual absoluto medio (cuanto más bajo, mejor)
+  const mapeBCV = erroresBCV.reduce((a, b) => a + b, 0) / erroresBCV.length;
+  const mapeUSDT = erroresUSDT.reduce((a, b) => a + b, 0) / erroresUSDT.length;
+
+  // Precisión: 100% - MAPE (capped en 0% mínimo)
+  const precisionBCV = Math.max(0, 100 - mapeBCV);
+  const precisionUSDT = Math.max(0, 100 - mapeUSDT);
+
+  // % de días en que el BCV NO cambió (se quedó igual)
+  const pctDiasBCVEstable = (diasBCVSinCambio.filter(Boolean).length / diasBCVSinCambio.length) * 100;
+
+  // Texto de interpretación
+  let notaBCV = '';
+  if (pctDiasBCVEstable > 60) {
+    notaBCV = `El BCV no cambia el ${pctDiasBCVEstable.toFixed(0)}% de los días — la proyección asume subida gradual, pero en la práctica sube de golpe.`;
+  } else {
+    notaBCV = `El BCV cambia con relativa frecuencia. La proyección es más confiable.`;
+  }
+
+  return {
+    dias_proyectados: diasProyeccion,
+    muestras_analizadas: erroresBCV.length,
+    bcv: {
+      error_promedio_pct: parseFloat(mapeBCV.toFixed(2)),
+      precision_pct: parseFloat(precisionBCV.toFixed(1)),
+      dias_sin_cambio_pct: parseFloat(pctDiasBCVEstable.toFixed(1)),
+      nota: notaBCV,
+    },
+    usdt: {
+      error_promedio_pct: parseFloat(mapeUSDT.toFixed(2)),
+      precision_pct: parseFloat(precisionUSDT.toFixed(1)),
+      nota: mapeUSDT < 2
+        ? 'Binance varía diariamente — la proyección de tendencia es confiable a corto plazo.'
+        : 'Alta variabilidad en Binance. La proyección puede desviarse más de lo esperado.',
+    },
+    interpretacion: `En los últimos ${erroresBCV.length} ventanas de ${diasProyeccion} días analizadas, el modelo predijo el BCV con un error de ${mapeBCV.toFixed(1)}% y Binance con ${mapeUSDT.toFixed(1)}%. Cuanto más cerca de 0%, mejor.`,
+  };
+}
+
+/**
  * Motor principal: calcula la proyección financiera
  * @param {number} monto - Monto inicial en Bolívares
  * @param {number} dias - Días a proyectar
@@ -124,13 +226,11 @@ function calcularProyeccion(monto, dias, historial, tasasActuales, buyPriceManua
   const gananciaBinance = bsRecuperadosBinance - monto;
   const rentabilidadBinance = (gananciaBinance / monto) * 100;
 
-  // Costo del spread (diferencia compra/venta al entrar y salir)
   // Spread real del mercado (informativo)
   const spreadActual = ((usdtVentaHoy - usdtCompraHoy) / usdtCompraHoy) * 100;
   const spreadFuturo = ((usdtVentaFuturo - usdtCompraFuturo) / usdtCompraFuturo) * 100;
 
   // === ESCENARIO B: Mantener en Bs. y comprar USDT al final ===
-  // (referencia para comparar — ¿cuánto USDT comprarías en X días con el mismo monto?)
   const usdtFuturoConMismoMonto = monto / usdtVentaFuturo;
   const diferenciUSDT = usdtComprados - usdtFuturoConMismoMonto;
 
@@ -140,14 +240,16 @@ function calcularProyeccion(monto, dias, historial, tasasActuales, buyPriceManua
   const gananciaBCV = bsRecuperadosBCV - monto;
   const rentabilidadBCV = (gananciaBCV / monto) * 100;
 
+  // === BACKTESTING — Precisión real del modelo ===
+  const backtest = backtestProyeccion(datosDiarios, dias);
+
   // === RECOMENDACIÓN ===
-  // La operación es conveniente si la rentabilidad supera el costo del spread
-  const umbralRentabilidad = 0.5; // 0.5% mínimo para que valga la pena
+  const umbralRentabilidad = 0.5;
   const esBuenaDecision = rentabilidadBinance > umbralRentabilidad;
   const ventajaVsBCV = rentabilidadBinance - rentabilidadBCV;
 
   let recomendacion = '';
-  let nivel = ''; // 'excelente', 'buena', 'neutral', 'mala'
+  let nivel = '';
 
   if (rentabilidadBinance > 3) {
     recomendacion = '¡Excelente momento para comprar USDT! La tendencia muestra una apreciación significativa.';
@@ -167,14 +269,14 @@ function calcularProyeccion(monto, dias, historial, tasasActuales, buyPriceManua
     entrada: { monto, dias },
     tasas_hoy: {
       usd_bcv: usdBcvHoy,
-      usdt_compra: usdtCompraHoy, // El mercado P2P
-      usdt_venta: usdtVentaHoy,   // El mercado P2P
+      usdt_compra: usdtCompraHoy,
+      usdt_venta: usdtVentaHoy,
       spread_actual_pct: parseFloat(spreadActual.toFixed(3)),
     },
     proyeccion: {
       usd_bcv_futuro: parseFloat(usdBcvFuturo.toFixed(3)),
-      usdt_compra_futuro: parseFloat(usdtCompraFuturo.toFixed(3)), // Proyección del mercado
-      usdt_venta_futuro: parseFloat(usdtVentaFuturo.toFixed(3)),   // Proyección del mercado
+      usdt_compra_futuro: parseFloat(usdtCompraFuturo.toFixed(3)),
+      usdt_venta_futuro: parseFloat(usdtVentaFuturo.toFixed(3)),
     },
     escenario_usdt: {
       usdt_comprados_hoy: parseFloat(usdtComprados.toFixed(6)),
@@ -195,6 +297,7 @@ function calcularProyeccion(monto, dias, historial, tasasActuales, buyPriceManua
       dias_analizados: tendencias.dias_analizados,
       confianza: tendencias.confianza,
     },
+    precision_modelo: backtest, // null si no hay suficientes datos
     recomendacion: {
       nivel,
       texto: recomendacion,

@@ -514,6 +514,40 @@
           ⚠️ <strong>Datos históricos limitados:</strong> La proyección se basa en pocas muestras. Los resultados serán más precisos a medida que el sistema acumule más datos (mínimo 7 días recomendados).
         </div>
 
+        <!-- Precisión real del modelo (backtesting) -->
+        <div id="calc-backtest" class="calc-backtest glass-card hidden">
+          <div class="backtest-header">
+            <span class="backtest-icon">🔬</span>
+            <div>
+              <h4 class="backtest-titulo">Precisión real del modelo</h4>
+              <p id="backtest-muestras" class="backtest-subtitulo">—</p>
+            </div>
+          </div>
+
+          <div class="backtest-row">
+            <div class="backtest-label-row">
+              <span class="backtest-asset">📊 USD BCV</span>
+              <span id="backtest-bcv-pct" class="backtest-pct">—</span>
+            </div>
+            <div class="backtest-bar-track">
+              <div id="backtest-bcv-bar" class="backtest-bar-fill"></div>
+            </div>
+            <p id="backtest-bcv-estable" class="backtest-nota"></p>
+            <p id="backtest-bcv-nota" class="backtest-nota"></p>
+          </div>
+
+          <div class="backtest-row">
+            <div class="backtest-label-row">
+              <span class="backtest-asset">💱 USDT Binance</span>
+              <span id="backtest-usdt-pct" class="backtest-pct">—</span>
+            </div>
+            <div class="backtest-bar-track">
+              <div id="backtest-usdt-bar" class="backtest-bar-fill"></div>
+            </div>
+            <p id="backtest-usdt-nota" class="backtest-nota"></p>
+          </div>
+        </div>
+
       </div>
 
       <!-- Estado de carga de la calculadora -->
