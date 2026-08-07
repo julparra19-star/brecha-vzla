@@ -101,6 +101,9 @@ async function getHistory(limit = 500, filter = 'last10') {
       const monthAgo = new Date(now);
       monthAgo.setDate(monthAgo.getDate() - 30);
       query = query.gte('created_at', monthAgo.toISOString()).limit(limit);
+    } else if (filter === 'all') {
+      // Sin filtro de fecha, obtener hasta el límite máximo
+      query = query.limit(limit);
     } else {
       // last10: los últimos 10 registros sin importar fecha
       query = query.limit(10);

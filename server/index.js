@@ -238,6 +238,104 @@ app.get('/api/calculator', async (req, res) => {
   }
 });
 
+/**
+ * GET /api/export-excel
+ * Exporta el historial a Excel filtrando solo los cortes más cercanos a 9 AM y 5 PM por día
+ */
+app.get('/api/export-excel', async (req, res) => {
+  try {
+    const history = await getHistory(100000, 'all');
+    if (!history || history.length === 0) {
+      return res.status(404).json({ error: 'No hay datos en el historial' });
+    }
+
+    // Agrupar por día (YYYY-MM-DD en hora local de Venezuela si es posible, o UTC)
+    const porDia = {};
+    history.forEach(r => {
+      // Ajuste simple a UTC-4 (Venezuela)
+      const dateObj = new Date(r.created_at);
+      // Restar 4 horas para tener el día correcto localmente
+      const localDate = new Date(dateObj.getTime() - (4 * 60 * 60 * 1000));
+      const day = localDate.toISOString().split('T')[0];
+      
+      if (!porDia[day]) porDia[day] = [];
+      porDia[day].push({ original: r, localDate });
+    });
+
+    const datosFiltrados = [];
+
+    // Para cada día, buscar el más cercano a las 9:00 AM y a las 5:00 PM (17:00)
+    const targetHours = [9, 17];
+    
+    Object.keys(porDia).sort().forEach(day => {
+      const records = porDia[day];
+      
+      targetHours.forEach(targetHour => {
+        let closest = null;
+        let minDiff = Infinity;
+
+        records.forEach(r => {
+          const hour = r.localDate.getUTCHours();
+          const min = r.localDate.getUTCMinutes();
+          const currentDecimal = hour + (min / 60);
+          const diff = Math.abs(currentDecimal - targetHour);
+          
+          if (diff < minDiff) {
+            minDiff = diff;
+            closest = r.original;
+          }
+        });
+
+        // Solo agregar si la diferencia es menor a 2.5 horas (para evitar agarrar datos de la madrugada si no hay cercanos)
+        if (closest && minDiff < 2.5) {
+          // Formatear para Excel
+          const local = new Date(new Date(closest.created_at).getTime() - (4 * 60 * 60 * 1000));
+          const timeString = local.toISOString().split('T')[1].substring(0, 5);
+          
+          // Evitar duplicados exactos (a veces el de las 9 y el de las 17 podrían ser el mismo si solo hay 1 dato en el día)
+          const isDup = datosFiltrados.find(d => d.created_at === closest.created_at);
+          if (!isDup) {
+            datosFiltrados.push({
+              created_at: closest.created_at, // Oculto o usado para id
+              Fecha: day,
+              Hora: timeString,
+              'USD BCV': closest.usd_bcv,
+              'USDT Binance (Compra)': closest.usdt_compra,
+              'USDT Binance (Venta)': closest.usdt_venta,
+              'Brecha USD/USDT %': closest.brecha_usd_usdt
+            });
+          }
+        }
+      });
+    });
+
+    // Ordenar cronológicamente descendente o ascendente (dejemos descendente como el history)
+    datosFiltrados.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+    // Limpiar el campo interno
+    const dataParaExcel = datosFiltrados.map(d => {
+      const { created_at, ...resto } = d;
+      return resto;
+    });
+
+    // Generar Excel
+    const xlsx = require('xlsx');
+    const ws = xlsx.utils.json_to_sheet(dataParaExcel);
+    const wb = xlsx.utils.book_new();
+    xlsx.utils.book_append_sheet(wb, ws, "Historial Filtrado");
+
+    const buffer = xlsx.write(wb, { type: 'buffer', bookType: 'xlsx' });
+
+    res.setHeader('Content-Disposition', 'attachment; filename="historial_9am_5pm.xlsx"');
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.send(buffer);
+
+  } catch (error) {
+    console.error('[API /export-excel] Error:', error.message);
+    res.status(500).json({ error: 'Error interno del servidor', message: error.message });
+  }
+});
+
 // =============================================================================
 // Ruta catch-all para SPA (Single Page Application)
 // Redirige todas las rutas no-API al frontend

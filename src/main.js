@@ -227,6 +227,14 @@ function initFilterButtons() {
       });
     });
   });
+
+  // Exportar Excel
+  const btnExport = document.getElementById('btn-export-excel');
+  if (btnExport) {
+    btnExport.addEventListener('click', () => {
+      window.location.href = '/api/export-excel';
+    });
+  }
 }
 
 // ============================================================
