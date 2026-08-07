@@ -309,11 +309,14 @@ function calcularProyeccion(monto, dias, historial, tasasActuales, buyPriceManua
   const usdtFuturoConMismoMonto = monto / usdtVentaFuturo;
   const diferenciUSDT           = usdtComprados - usdtFuturoConMismoMonto;
 
-  // === ESCENARIO C: Convertir a USD al BCV y volver en X días ===
-  const usdCompradosBCV  = monto / usdBcvHoy;
-  const bsRecuperadosBCV = usdCompradosBCV * usdBcvFuturo;
-  const gananciaBCV      = bsRecuperadosBCV - monto;
-  const rentabilidadBCV  = (gananciaBCV / monto) * 100;
+  // === ESCENARIO C: Costo de NO hacer nada (guardar Bs.) ===
+  // Si guardo mis Bs y el BCV sube, necesito MÁS Bs para comprar el mismo USD.
+  // Pérdida = lo que vale hoy en USD * diferencia de tasa = monto - (monto * bcvHoy / bcvFuturo)
+  const perdidaInaccion    = monto - (monto * usdBcvHoy / usdBcvFuturo);
+  const perdidaInaccionPct = (perdidaInaccion / monto) * 100;
+
+  // Ventaja de comprar USDT vs quedarse quieto (diferencia de rentabilidad)
+  const ventajaVsInaccion  = rentabilidadBinance - (-perdidaInaccionPct);
 
   // === BACKTESTING ===
   const backtest = backtestProyeccion(datosDiarios, dias);
@@ -368,9 +371,10 @@ function calcularProyeccion(monto, dias, historial, tasasActuales, buyPriceManua
       diferencia_usdt_vs_esperar:   parseFloat(diferenciUSDT.toFixed(6)),
     },
     escenario_bcv: {
-      bs_recuperados:    parseFloat(bsRecuperadosBCV.toFixed(2)),
-      ganancia_bs:       parseFloat(gananciaBCV.toFixed(2)),
-      rentabilidad_pct:  parseFloat(rentabilidadBCV.toFixed(3)),
+      usd_bcv_hoy:         usdBcvHoy,
+      usd_bcv_futuro:      parseFloat(usdBcvFuturo.toFixed(3)),
+      perdida_inaccion_bs: parseFloat(perdidaInaccion.toFixed(2)),
+      perdida_inaccion_pct: parseFloat(perdidaInaccionPct.toFixed(3)),
     },
     tendencias: {
       cambio_por_dia_habil_bcv:      parseFloat(tendencias.usd_bcv.toFixed(3)),
@@ -390,7 +394,7 @@ function calcularProyeccion(monto, dias, historial, tasasActuales, buyPriceManua
       nivel,
       texto: recomendacion,
       es_buena_decision: esBuenaDecision,
-      ventaja_vs_bcv_pct: parseFloat(ventajaVsBCV.toFixed(3)),
+      ventaja_vs_bcv_pct: parseFloat(ventajaVsInaccion.toFixed(3)),
     },
   };
 }

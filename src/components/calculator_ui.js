@@ -166,19 +166,30 @@ function renderResultados(data) {
   elRent.textContent = `${rent >= 0 ? '+' : ''}${rent.toFixed(3)}%`;
   elRent.className = `metrica-valor bold ${rent >= 0 ? 'positivo' : (rent < -0.5 ? 'negativo' : 'neutro')}`;
 
-  // --- ESCENARIO BCV ---
-  setText('calc-usd-hoy',     `Bs. ${tasas_hoy.usd_bcv.toFixed(3)}`);
-  setText('calc-usd-futuro',  `Bs. ${proyeccion.usd_bcv_futuro.toFixed(3)}`);
+  // --- COSTO DE NO HACER NADA ---
+  setText('calc-usd-hoy',    `Bs. ${tasas_hoy.usd_bcv.toFixed(3)}`);
+  setText('calc-usd-futuro', `Bs. ${proyeccion.usd_bcv_futuro.toFixed(3)}`);
 
-  const ganBCV = escenario_bcv.ganancia_bs;
-  const elGanBCV = document.getElementById('calc-ganancia-bcv');
-  elGanBCV.textContent = `${ganBCV >= 0 ? '+' : ''}Bs. ${formatNum(ganBCV)}`;
-  elGanBCV.className = `metrica-valor ${ganBCV >= 0 ? 'positivo' : 'negativo'}`;
+  const perdida    = escenario_bcv.perdida_inaccion_bs;
+  const perdidaPct = escenario_bcv.perdida_inaccion_pct;
+
+  const elPerdida = document.getElementById('calc-perdida-inaccion');
+  if (elPerdida) {
+    elPerdida.textContent = `-Bs. ${formatNum(Math.abs(perdida))}`;
+    elPerdida.className = 'metrica-valor negativo';
+  }
+  const elPerdidaPct = document.getElementById('calc-perdida-pct');
+  if (elPerdidaPct) {
+    elPerdidaPct.textContent = `-${Math.abs(perdidaPct).toFixed(2)}%`;
+    elPerdidaPct.className = 'metrica-valor bold negativo';
+  }
 
   const ventaja = recomendacion.ventaja_vs_bcv_pct;
   const elVentaja = document.getElementById('calc-ventaja-bcv');
-  elVentaja.textContent = `${ventaja >= 0 ? '+' : ''}${ventaja.toFixed(3)}%`;
-  elVentaja.className = `metrica-valor bold ${ventaja >= 0 ? 'positivo' : 'negativo'}`;
+  if (elVentaja) {
+    elVentaja.textContent = `${ventaja >= 0 ? '+' : ''}${ventaja.toFixed(2)}%`;
+    elVentaja.className = `metrica-valor bold ${ventaja >= 0 ? 'positivo' : 'negativo'}`;
+  }
 
   // --- TENDENCIAS ---
   const tc = tendencias.cambio_diario_usdt_compra;
