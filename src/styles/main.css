@@ -1445,3 +1445,30 @@ body {
   margin: 0.15rem 0 0 0;
   line-height: 1.4;
 }
+
+/* Volatilidad Binance */
+.vol-badge {
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.2rem 0.6rem;
+  border-radius: 99px;
+  border: 1px solid transparent;
+}
+
+.vol-nota {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin: var(--space-sm) 0 0 0;
+  line-height: 1.5;
+}
+
+.vol-choque {
+  font-size: 0.75rem;
+  color: #f59e0b;
+  margin: var(--space-xs) 0 0 0;
+  line-height: 1.4;
+  padding: 0.4rem 0.6rem;
+  background: rgba(245,158,11,0.08);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid #f59e0b;
+}

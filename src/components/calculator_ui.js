@@ -109,7 +109,8 @@ async function ejecutarCalculo(monto, dias, precioCompraManual = null, precioVen
  */
 function renderResultados(data) {
   const { entrada, tasas_hoy, proyeccion, escenario_usdt,
-          escenario_bcv, tendencias, recomendacion, precision_modelo } = data;
+          escenario_bcv, tendencias, recomendacion,
+          precision_modelo, volatilidad_binance, calendario } = data;
 
   const dias = entrada.dias;
 
@@ -182,12 +183,25 @@ function renderResultados(data) {
   // --- TENDENCIAS ---
   const tc = tendencias.cambio_diario_usdt_compra;
   const tv = tendencias.cambio_diario_usdt_venta;
+  const tb = tendencias.cambio_por_dia_habil_bcv || 0;
   setText('calc-tend-compra',
     `${tc >= 0 ? '↑' : '↓'} ${Math.abs(tc).toFixed(3)} Bs./día`);
   setText('calc-tend-venta',
     `${tv >= 0 ? '↑' : '↓'} ${Math.abs(tv).toFixed(3)} Bs./día`);
   setText('calc-dias-analizados',
     tendencias.dias_analizados > 0 ? `${tendencias.dias_analizados} días` : 'Sin historial');
+
+  // Días hábiles del BCV en el período
+  if (calendario) {
+    const elHabiles = document.getElementById('calc-dias-habiles');
+    if (elHabiles) {
+      elHabiles.textContent = `${calendario.dias_habiles_bcv} días hábiles de ${calendario.dias_calendario} de calendario`;
+    }
+    const elTendBCV = document.getElementById('calc-tend-bcv');
+    if (elTendBCV) {
+      elTendBCV.textContent = `${tb >= 0 ? '↑' : '↓'} ${Math.abs(tb).toFixed(3)} Bs./día hábil`;
+    }
+  }
 
   // Badge de confianza
   const elConf = document.getElementById('calc-confianza');
@@ -201,6 +215,30 @@ function renderResultados(data) {
     adv.classList.remove('hidden');
   } else {
     adv.classList.add('hidden');
+  }
+
+  // --- VOLATILIDAD BINANCE ---
+  const volBox = document.getElementById('calc-volatilidad');
+  if (volBox && volatilidad_binance) {
+    volBox.classList.remove('hidden');
+    const v = volatilidad_binance;
+    const colores = { baja: '#10b981', media: '#f59e0b', alta: '#ef4444', desconocida: '#8888bb' };
+    const iconos  = { baja: '😌', media: '⚡', alta: '🌪️', desconocida: '❓' };
+    const labels  = { baja: 'Estable', media: 'Moderada', alta: '¡Alta!', desconocida: '—' };
+    const color   = colores[v.nivel] || '#8888bb';
+    const volBadge = document.getElementById('calc-vol-badge');
+    if (volBadge) {
+      volBadge.textContent = `${iconos[v.nivel]} ${labels[v.nivel]}`;
+      volBadge.style.cssText = `color:${color}; border-color:${color}40; background:${color}15`;
+    }
+    setText('calc-vol-nota', v.nota);
+    if (v.dias_choque > 0) {
+      const choque = document.getElementById('calc-vol-choque');
+      if (choque) {
+        choque.textContent = `⚠️ ${v.dias_choque} días de choque externo detectados (terremotos, crisis, noticias)`;
+        choque.classList.remove('hidden');
+      }
+    }
   }
 
   // --- PRECISIÓN DEL MODELO (BACKTESTING) ---
