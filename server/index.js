@@ -227,7 +227,7 @@ app.get('/api/calculator', async (req, res) => {
 
     const tasasActuales = calculateGaps(bcvData, binanceData);
 
-    const resultado = calcularProyeccion(monto, dias, historial, tasasActuales, buyPriceManual, sellPriceManual);
+    const resultado = await calcularProyeccion(monto, dias, historial, tasasActuales, buyPriceManual, sellPriceManual);
     // Marcar si se usaron precios manuales
     resultado.precios_manuales = !!(buyPriceManual || sellPriceManual);
 

@@ -147,13 +147,27 @@ function renderResultados(data) {
   descripcion.textContent = recomendacion.texto;
 
   const bi = badgeInfo[nivel];
-  if (bi) {
-    badge.textContent = bi.texto;
-    badge.style.cssText = `background:${bi.bg}; color:${bi.color}; border:${bi.border}`;
+  const ollaPresion = data.olla_presion;
+  
+  if (ollaPresion && ollaPresion.activa) {
+    veredicto.className = `calc-veredicto glass-card nivel-excelente`;
+    veredicto.style.border = '1px solid #ef4444'; // Red border for alert
+    icon.textContent = '🚨';
+    if (bi) {
+      badge.textContent = '¡Olla de Presión!';
+      badge.style.cssText = `background:rgba(239,68,68,0.2); color:#ef4444; border:1px solid rgba(239,68,68,0.4)`;
+    }
+  } else {
+    veredicto.style.border = ''; // reset
+    if (bi) {
+      badge.textContent = bi.texto;
+      badge.style.cssText = `background:${bi.bg}; color:${bi.color}; border:${bi.border}`;
+    }
   }
 
   // --- ESCENARIO USDT ---
   setText('calc-usdt-comprados', `${escenario_usdt.usdt_comprados_hoy.toFixed(4)} USDT`);
+  setText('calc-comision-bancaria', `-Bs. ${formatNum(escenario_usdt.comision_bancaria_bs)}`);
   setText('calc-bs-recuperados', `Bs. ${formatNum(escenario_usdt.bs_recuperados)}`);
 
   const ganBs = escenario_usdt.ganancia_bs;

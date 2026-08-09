@@ -245,10 +245,12 @@ function backtestProyeccion(datosDiarios, diasProyeccion) {
   };
 }
 
+const { scrapeBCVIntervention } = require('./scraper');
+
 /**
  * Motor principal: calcula la proyección financiera
  */
-function calcularProyeccion(monto, dias, historial, tasasActuales, buyPriceManual = null, sellPriceManual = null) {
+async function calcularProyeccion(monto, dias, historial, tasasActuales, buyPriceManual = null, sellPriceManual = null) {
   const { bcv, binance } = tasasActuales;
 
   const usdBcvHoy      = bcv?.usd || 0;
@@ -298,7 +300,12 @@ function calcularProyeccion(monto, dias, historial, tasasActuales, buyPriceManua
   const precioUsuarioVentaFuturo   = sellPriceManual || usdtCompraFuturo;
 
   // === ESCENARIO A: Comprar USDT hoy y vender en X días ===
-  const usdtComprados          = monto / precioUsuarioCompraHoy;
+  // Comisión bancaria estándar en Venezuela por pago móvil / transferencia
+  const comisionBancariaPct = 0.003; // 0.3%
+  const costoComisionBs = monto * comisionBancariaPct;
+  const montoNeto = monto - costoComisionBs;
+
+  const usdtComprados          = montoNeto / precioUsuarioCompraHoy;
   const bsRecuperadosBinance   = usdtComprados * precioUsuarioVentaFuturo;
   const gananciaBinance        = bsRecuperadosBinance - monto;
   const rentabilidadBinance    = (gananciaBinance / monto) * 100;
@@ -328,10 +335,45 @@ function calcularProyeccion(monto, dias, historial, tasasActuales, buyPriceManua
   let recomendacion = '';
   let nivel = '';
 
+  // === DETECCIÓN DE OLLA DE PRESIÓN ===
+  let rachaEstancamiento = 0;
+  let crecimientoBinanceEnRacha = 0;
+  let altaPresion = false;
+  let scraperData = null;
+
+  if (datosDiarios.length > 5) {
+    const bcvHoy = datosDiarios[datosDiarios.length - 1].usd_bcv;
+    const usdtHoy = datosDiarios[datosDiarios.length - 1].usdt_compra;
+    let usdtInicioRacha = usdtHoy;
+
+    for (let i = datosDiarios.length - 2; i >= 0; i--) {
+      const bcvAnterior = datosDiarios[i].usd_bcv;
+      if (Math.abs(bcvHoy - bcvAnterior) < 0.01) {
+        rachaEstancamiento++;
+        usdtInicioRacha = datosDiarios[i].usdt_compra;
+      } else {
+        break;
+      }
+    }
+
+    if (usdtInicioRacha > 0) {
+      crecimientoBinanceEnRacha = ((usdtHoy - usdtInicioRacha) / usdtInicioRacha) * 100;
+    }
+
+    // Si lleva más de 3 días estancado y Binance subió más de 1%
+    if (rachaEstancamiento >= 3 && crecimientoBinanceEnRacha > 1) {
+      altaPresion = true;
+      scraperData = await scrapeBCVIntervention();
+    }
+  }
+
   // Si hay alta volatilidad, ser más conservador en la recomendación
   const ajusteVolatilidad = volatilidad.volatilidad === 'alta' ? 1.5 : 0;
 
-  if (rentabilidadBinance > 3 + ajusteVolatilidad) {
+  if (altaPresion) {
+    recomendacion = `¡ALERTA DE OLLA DE PRESIÓN! El BCV lleva ${rachaEstancamiento} días estancado mientras Binance ha subido ${crecimientoBinanceEnRacha.toFixed(1)}%. Es inminente una corrección al alza del dólar oficial. ${scraperData ? `Noticia: "${scraperData.titular}" por ${scraperData.monto}.` : ''} Se recomienda comprar USDT de inmediato.`;
+    nivel = 'excelente';
+  } else if (rentabilidadBinance > 3 + ajusteVolatilidad) {
     recomendacion = '¡Excelente momento para comprar USDT! La tendencia muestra una apreciación significativa.';
     nivel = 'excelente';
   } else if (rentabilidadBinance > umbralRentabilidad + ajusteVolatilidad) {
@@ -364,6 +406,7 @@ function calcularProyeccion(monto, dias, historial, tasasActuales, buyPriceManua
     },
     escenario_usdt: {
       usdt_comprados_hoy:           parseFloat(usdtComprados.toFixed(6)),
+      comision_bancaria_bs:         parseFloat(costoComisionBs.toFixed(2)),
       bs_recuperados:               parseFloat(bsRecuperadosBinance.toFixed(2)),
       ganancia_bs:                  parseFloat(gananciaBinance.toFixed(2)),
       rentabilidad_pct:             parseFloat(rentabilidadBinance.toFixed(3)),
@@ -395,6 +438,12 @@ function calcularProyeccion(monto, dias, historial, tasasActuales, buyPriceManua
       es_buena_decision: esBuenaDecision,
       ventaja_vs_bcv_pct: parseFloat(ventajaVsInaccion.toFixed(3)),
     },
+    olla_presion: {
+      activa: altaPresion,
+      dias_estancamiento: rachaEstancamiento,
+      crecimiento_binance_pct: parseFloat(crecimientoBinanceEnRacha.toFixed(2)),
+      scraper_data: scraperData,
+    }
   };
 }
 
