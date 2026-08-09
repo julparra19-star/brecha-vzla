@@ -200,11 +200,6 @@ async function fetchAndUpdateHistory(filter = 'last10') {
   // Actualizar Widgets de Salud del Mercado
   updateMarketHealth(history);
 
-  // Guardar historial completo y actualizar scorecard con el período activo
-  window._fullHistory = history;
-  const activePeriod = parseInt(document.querySelector('#scorecard-filter-bar .filter-btn.active')?.dataset.period || '7');
-  updateScorecard(history, activePeriod);
-
   let dataToRender = [...history];
 
   // Determinar rango de tiempo (history viene ordenado del más nuevo al más antiguo)
@@ -651,25 +646,33 @@ function updateMarketHealth(history) {
 // SCORECARD — VARIACIÓN ACUMULADA
 // ============================================================
 
-function initScorecard() {
+async function initScorecard() {
+  // Obtener al menos 30 días de historial para el scorecard
+  const history = await fetchHistory('month');
+  window._scorecardHistory = history || [];
+
   const btns = document.querySelectorAll('#scorecard-filter-bar .filter-btn');
   btns.forEach(btn => {
     btn.addEventListener('click', () => {
       btns.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       const period = parseInt(btn.dataset.period);
-      if (window._fullHistory) {
-        updateScorecard(window._fullHistory, period);
-      }
+      updateScorecard(window._scorecardHistory, period);
     });
   });
+
+  // Inicializar con el período activo (por defecto 7 días)
+  const activePeriod = parseInt(document.querySelector('#scorecard-filter-bar .filter-btn.active')?.dataset.period || '7');
+  updateScorecard(window._scorecardHistory, activePeriod);
 }
 
 function updateScorecard(history, days) {
   if (!history || history.length < 2) return;
 
-  const msPerDay = 24 * 60 * 60 * 1000;
-  const cutoff   = Date.now() - days * msPerDay;
+  const cutoffDate = new Date();
+  cutoffDate.setDate(cutoffDate.getDate() - days);
+  cutoffDate.setHours(0, 0, 0, 0); // Inicio del día para no perder los registros de medianoche
+  const cutoff = cutoffDate.getTime();
 
   // Registros dentro del período (ordenados más nuevo → más antiguo)
   const inRange = history.filter(r => {
