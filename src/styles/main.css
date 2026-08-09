@@ -1001,16 +1001,10 @@ body {
 }
 
 .calc-inputs {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-direction: column;
   gap: var(--space-lg);
   margin-bottom: var(--space-lg);
-}
-
-@media (max-width: 600px) {
-  .calc-inputs {
-    grid-template-columns: 1fr;
-  }
 }
 
 .calc-input-group {
