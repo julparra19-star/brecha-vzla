@@ -13,10 +13,11 @@ const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36
 /**
  * Construye el cuerpo de la solicitud para la API P2P de Binance
  * @param {'BUY'|'SELL'} tradeType - Tipo de operación
+ * @param {number|null} amount - Monto en VES (opcional) para filtrar por volumen
  * @returns {object} Cuerpo de la solicitud
  */
-function buildRequestBody(tradeType) {
-  return {
+function buildRequestBody(tradeType, amount = null) {
+  const body = {
     asset: 'USDT',
     fiat: 'VES',
     tradeType: tradeType,
@@ -25,15 +26,22 @@ function buildRequestBody(tradeType) {
     payTypes: [],
     merchantCheck: true, // Solo merchants verificados
   };
+
+  if (amount && amount > 0) {
+    body.transAmount = amount.toString();
+  }
+
+  return body;
 }
 
 /**
  * Obtiene los precios P2P de Binance para un tipo de operación
  * @param {'BUY'|'SELL'} tradeType - Tipo de operación (compra o venta)
+ * @param {number|null} amount - Monto opcional en VES
  * @returns {Promise<number[]>} Array de precios
  */
-async function fetchP2PPrices(tradeType) {
-  const body = buildRequestBody(tradeType);
+async function fetchP2PPrices(tradeType, amount = null) {
+  const body = buildRequestBody(tradeType, amount);
 
   const response = await fetch(BINANCE_P2P_URL, {
     method: 'POST',
@@ -74,14 +82,15 @@ function calculateAverage(prices) {
 
 /**
  * Obtiene precios de compra, venta y promedio de USDT/VES en Binance P2P
+ * @param {number|null} amount - Monto opcional en VES para obtener tasa volumétrica
  * @returns {Promise<{compra: number|null, venta: number|null, promedio: number|null}>}
  */
-async function fetchBinanceP2P() {
+async function fetchBinanceP2P(amount = null) {
   try {
     // Obtener precios de compra y venta en paralelo
     const [buyPrices, sellPrices] = await Promise.all([
-      fetchP2PPrices('BUY'),
-      fetchP2PPrices('SELL'),
+      fetchP2PPrices('BUY', amount),
+      fetchP2PPrices('SELL', amount),
     ]);
 
     if (buyPrices.length === 0 && sellPrices.length === 0) {
@@ -89,11 +98,10 @@ async function fetchBinanceP2P() {
       return { compra: null, venta: null, promedio: null };
     }
 
-    // Descartamos el primer resultado: en COMPRA es el más caro (outlier alto)
-    // y en VENTA es el más barato (outlier bajo), lo que distorsiona el promedio.
-    // Usamos posiciones 2..11 (índice 1 en adelante).
-    const buyFiltered  = buyPrices.slice(1);
-    const sellFiltered = sellPrices.slice(1);
+    // Si hay pocos resultados (ej. por filtro de volumen alto), no descartamos el primero.
+    // Si hay 3 o más, descartamos el primero (outlier).
+    const buyFiltered  = buyPrices.length >= 3 ? buyPrices.slice(1) : buyPrices;
+    const sellFiltered = sellPrices.length >= 3 ? sellPrices.slice(1) : sellPrices;
 
     const compra  = parseFloat(calculateAverage(buyFiltered  ).toFixed(3));
     const venta   = parseFloat(calculateAverage(sellFiltered ).toFixed(3));

@@ -221,7 +221,7 @@ app.get('/api/calculator', async (req, res) => {
     }
 
     const [[bcvData, binanceData], historial] = await Promise.all([
-      Promise.all([fetchBCVRates(), fetchBinanceP2P()]),
+      Promise.all([fetchBCVRates(), fetchBinanceP2P(monto)]),
       getHistory(500, 'month'),
     ]);
 
