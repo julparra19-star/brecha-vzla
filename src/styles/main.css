@@ -15,9 +15,9 @@
   --text-primary:   #E2E8F0;
   --text-secondary: #94A3B8;
 
-  /* Acento principal — Naranja Vibrante */
-  --accent-orange:  #FF8F00;
-  --accent-orange2: #FFA726;
+  /* Acento principal — Azul Eléctrico */
+  --accent-orange:  #3B82F6;
+  --accent-orange2: #60A5FA;
   --accent-blue:    #3B82F6;
   --accent-green:   #10B981;
   --accent-red:     #EF4444;
@@ -25,14 +25,18 @@
   --accent-cyan:    #06B6D4;
   --accent-purple:  #A855F7;
 
+  /* Acentos CTA — Naranja solo para botones de acción */
+  --cta-orange:  #FF8F00;
+  --cta-orange2: #FFA726;
+
   /* Gradientes */
-  --gradient-primary: linear-gradient(135deg, #FF8F00, #FFA726);
+  --gradient-primary: linear-gradient(135deg, #3B82F6, #60A5FA);
   --gradient-hero:    linear-gradient(135deg, #0A0F1E 0%, #0D1526 50%, #060B17 100%);
 
   /* Glassmorphism azul oscuro */
   --glass-bg:     rgba(59, 130, 246, 0.04);
   --glass-border: rgba(59, 130, 246, 0.12);
-  --shadow-glow:  0 0 30px rgba(59, 130, 246, 0.10);
+  --shadow-glow:  0 0 30px rgba(59, 130, 246, 0.15);
 
   /* Tipografía */
   --font-heading: 'Outfit', sans-serif;
@@ -251,7 +255,7 @@ body {
 
 .logo-icon {
   font-size: 1.6rem;
-  filter: drop-shadow(0 0 8px rgba(255, 143, 0, 0.5));
+  filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.5));
 }
 
 .brand-name {
@@ -449,7 +453,7 @@ body {
   background: linear-gradient(
     135deg,
     transparent 30%,
-    rgba(255, 143, 0, 0.18) 50%,
+    rgba(59, 130, 246, 0.18) 50%,
     transparent 70%
   );
   -webkit-mask:
@@ -467,7 +471,7 @@ body {
 
 .metric-card:hover {
   transform: translateY(-3px);
-  border-color: rgba(255, 143, 0, 0.22);
+  border-color: rgba(59, 130, 246, 0.22);
   box-shadow: var(--shadow-glow);
 }
 
@@ -480,7 +484,7 @@ body {
   height: 200%;
   background: radial-gradient(
     circle at center,
-    rgba(255, 143, 0, 0.05) 0%,
+    rgba(59, 130, 246, 0.05) 0%,
     transparent 60%
   );
   opacity: 0;
@@ -512,8 +516,8 @@ body {
 }
 
 @keyframes cardFlash {
-  0%   { box-shadow: 0 0 0 rgba(255, 143, 0, 0); }
-  30%  { box-shadow: 0 0 25px rgba(255, 143, 0, 0.25); }
+  0%   { box-shadow: 0 0 0 rgba(59, 130, 246, 0); }
+  30%  { box-shadow: 0 0 25px rgba(59, 130, 246, 0.25); }
   100% { box-shadow: none; }
 }
 
@@ -919,7 +923,7 @@ body {
 }
 
 .install-btn:hover {
-  box-shadow: 0 0 20px rgba(255, 143, 0, 0.3);
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
 }
 
 /* Animación para números al actualizarse */
@@ -962,7 +966,7 @@ body {
    ============================================================= */
 
 .calc-section {
-  background: linear-gradient(180deg, transparent 0%, rgba(255, 143, 0, 0.025) 50%, transparent 100%);
+  background: linear-gradient(180deg, transparent 0%, rgba(59, 130, 246, 0.025) 50%, transparent 100%);
   border-top: 1px solid var(--glass-border);
   padding: var(--space-2xl) var(--space-lg);
 }
@@ -1016,8 +1020,8 @@ body {
 }
 
 .calc-input-wrapper:focus-within {
-  border-color: rgba(255, 143, 0, 0.5);
-  box-shadow: 0 0 0 3px rgba(255, 143, 0, 0.10);
+  border-color: rgba(59, 130, 246, 0.5);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
 
 .calc-input-prefix {
@@ -1025,7 +1029,7 @@ body {
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--accent-orange);
-  background: rgba(255, 143, 0, 0.08);
+  background: rgba(59, 130, 246, 0.08);
   height: 100%;
   display: flex;
   align-items: center;
@@ -1073,19 +1077,19 @@ body {
 
 .calc-day-btn:hover,
 .calc-day-btn.active {
-  background: rgba(255, 143, 0, 0.15);
-  border-color: rgba(255, 143, 0, 0.4);
-  color: var(--accent-orange);
+  background: rgba(59, 130, 246, 0.15);
+  border-color: rgba(59, 130, 246, 0.4);
+  color: var(--accent-blue);
 }
 
 /* Botón principal CALCULADORA — Naranja Vibrante */
 .calc-btn {
   width: 100%;
   padding: 1rem;
-  background: var(--accent-orange);
+  background: var(--cta-orange);
+  color: #ffffff;
   border: none;
   border-radius: var(--radius-md);
-  color: #ffffff;
   font-size: 1rem;
   font-weight: 700;
   font-family: var(--font-heading);
@@ -1101,7 +1105,7 @@ body {
 .calc-btn:hover {
   transform: translateY(-2px);
   background: var(--accent-orange2);
-  box-shadow: 0 8px 25px rgba(255, 143, 0, 0.35);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.35);
 }
 
 .calc-btn:active {
@@ -1140,7 +1144,7 @@ body {
 .veredicto-icon {
   font-size: 2.5rem;
   flex-shrink: 0;
-  filter: drop-shadow(0 0 12px rgba(255, 143, 0, 0.4));
+  filter: drop-shadow(0 0 12px rgba(59, 130, 246, 0.4));
 }
 
 .veredicto-texto {
@@ -1464,7 +1468,7 @@ body {
 
 /* Botón primario genérico (exportar Excel, etc.) */
 .btn-primary {
-  background: var(--accent-orange);
+  background: var(--cta-orange);
   color: #ffffff;
   border: none;
   border-radius: var(--radius-md);
@@ -1477,8 +1481,8 @@ body {
 }
 
 .btn-primary:hover {
-  background: var(--accent-orange2);
-  box-shadow: 0 6px 18px rgba(255, 143, 0, 0.3);
+  background: var(--cta-orange2);
+  box-shadow: 0 6px 18px rgba(59, 130, 246, 0.3);
   transform: translateY(-1px);
 }
 
@@ -1582,7 +1586,7 @@ body {
   position: fixed;
   bottom: 30px;
   right: 30px;
-  background: linear-gradient(135deg, var(--accent-orange), #ff6d00);
+  background: linear-gradient(135deg, var(--cta-orange), #ff6d00);
   color: #fff;
   border: none;
   border-radius: 50px;
