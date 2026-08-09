@@ -1630,3 +1630,114 @@ body {
     font-size: 1.5rem;
   }
 }
+
+/* =========================================================
+   SCORECARD — VARIACIÓN ACUMULADA
+   ========================================================= */
+.scorecard-section .section-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: var(--space-lg);
+}
+
+.scorecard-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 640px) {
+  .scorecard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.scorecard-card {
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.scorecard-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-glow);
+}
+
+.scorecard-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.scorecard-badge {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  text-transform: uppercase;
+}
+
+.scorecard-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.scorecard-value-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.scorecard-pct {
+  font-family: var(--font-heading);
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -1px;
+  font-variant-numeric: tabular-nums;
+  transition: color 0.4s ease;
+}
+
+.scorecard-arrow {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.scorecard-pct.up   { color: #EF4444; }
+.scorecard-pct.down { color: #10B981; }
+.scorecard-pct.flat { color: var(--text-secondary); }
+
+.scorecard-arrow.up   { color: #EF4444; }
+.scorecard-arrow.down { color: #10B981; }
+.scorecard-arrow.flat { color: var(--text-secondary); }
+
+.scorecard-detail {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  flex-wrap: wrap;
+}
+
+.scorecard-sep {
+  opacity: 0.4;
+}
+
+.scorecard-abs {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  padding-top: 0.25rem;
+  border-top: 1px solid var(--glass-border);
+  margin-top: 0.25rem;
+}

@@ -279,6 +279,78 @@
       </div>
     </section>
 
+    <!-- === SECCIÓN SCORECARD VARIACIÓN ACUMULADA === -->
+    <section class="section scorecard-section">
+      <div class="section-header-row">
+        <h2 class="section-title">
+          <span class="section-icon">📊</span>
+          Variación Acumulada
+        </h2>
+        <div class="filter-bar" id="scorecard-filter-bar">
+          <button class="filter-btn active" data-period="7">7 días</button>
+          <button class="filter-btn" data-period="15">15 días</button>
+          <button class="filter-btn" data-period="30">30 días</button>
+        </div>
+      </div>
+      <div class="scorecard-grid">
+
+        <!-- USD BCV -->
+        <div class="scorecard-card glass-card">
+          <div class="scorecard-header">
+            <span class="scorecard-badge badge-blue">BCV</span>
+            <span class="scorecard-label">Dólar USD</span>
+          </div>
+          <div class="scorecard-value-row">
+            <span class="scorecard-pct" id="sc-usd-pct">—</span>
+            <span class="scorecard-arrow" id="sc-usd-arrow">—</span>
+          </div>
+          <div class="scorecard-detail">
+            <span class="scorecard-from" id="sc-usd-from">— Bs.</span>
+            <span class="scorecard-sep">→</span>
+            <span class="scorecard-to" id="sc-usd-to">— Bs.</span>
+          </div>
+          <div class="scorecard-abs" id="sc-usd-abs">—</div>
+        </div>
+
+        <!-- EUR BCV -->
+        <div class="scorecard-card glass-card">
+          <div class="scorecard-header">
+            <span class="scorecard-badge badge-purple">BCV</span>
+            <span class="scorecard-label">Euro EUR</span>
+          </div>
+          <div class="scorecard-value-row">
+            <span class="scorecard-pct" id="sc-eur-pct">—</span>
+            <span class="scorecard-arrow" id="sc-eur-arrow">—</span>
+          </div>
+          <div class="scorecard-detail">
+            <span class="scorecard-from" id="sc-eur-from">— Bs.</span>
+            <span class="scorecard-sep">→</span>
+            <span class="scorecard-to" id="sc-eur-to">— Bs.</span>
+          </div>
+          <div class="scorecard-abs" id="sc-eur-abs">—</div>
+        </div>
+
+        <!-- USDT Binance Promedio -->
+        <div class="scorecard-card glass-card featured">
+          <div class="scorecard-header">
+            <span class="scorecard-badge badge-cyan">P2P</span>
+            <span class="scorecard-label">USDT Binance</span>
+          </div>
+          <div class="scorecard-value-row">
+            <span class="scorecard-pct" id="sc-usdt-pct">—</span>
+            <span class="scorecard-arrow" id="sc-usdt-arrow">—</span>
+          </div>
+          <div class="scorecard-detail">
+            <span class="scorecard-from" id="sc-usdt-from">— Bs.</span>
+            <span class="scorecard-sep">→</span>
+            <span class="scorecard-to" id="sc-usdt-to">— Bs.</span>
+          </div>
+          <div class="scorecard-abs" id="sc-usdt-abs">—</div>
+        </div>
+
+      </div>
+    </section>
+
     <!-- === SECCIÓN GRÁFICO === -->
     <section class="section chart-section">
       <div class="section-header-row">

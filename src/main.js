@@ -57,8 +57,9 @@ document.addEventListener('DOMContentLoaded', () => {
   initCalculadora();
   setupCalculatorModal();
 
-  // 4. Inicializar filtros de tiempo
+  // 4. Inicializar filtros de tiempo y scorecard
   initFilterButtons();
+  initScorecard();
 
   // 5. Cargar datos iniciales
   initDashboard();
@@ -198,6 +199,11 @@ async function fetchAndUpdateHistory(filter = 'last10') {
 
   // Actualizar Widgets de Salud del Mercado
   updateMarketHealth(history);
+
+  // Guardar historial completo y actualizar scorecard con el período activo
+  window._fullHistory = history;
+  const activePeriod = parseInt(document.querySelector('#scorecard-filter-bar .filter-btn.active')?.dataset.period || '7');
+  updateScorecard(history, activePeriod);
 
   let dataToRender = [...history];
 
@@ -639,4 +645,96 @@ function updateMarketHealth(history) {
     elVolat.textContent = volatText;
     elVolat.style.color = volatColor;
   }
+}
+
+// ============================================================
+// SCORECARD — VARIACIÓN ACUMULADA
+// ============================================================
+
+function initScorecard() {
+  const btns = document.querySelectorAll('#scorecard-filter-bar .filter-btn');
+  btns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      btns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const period = parseInt(btn.dataset.period);
+      if (window._fullHistory) {
+        updateScorecard(window._fullHistory, period);
+      }
+    });
+  });
+}
+
+function updateScorecard(history, days) {
+  if (!history || history.length < 2) return;
+
+  const msPerDay = 24 * 60 * 60 * 1000;
+  const cutoff   = Date.now() - days * msPerDay;
+
+  // Registros dentro del período (ordenados más nuevo → más antiguo)
+  const inRange = history.filter(r => {
+    const t = new Date(r.created_at || r.timestamp || r.fecha).getTime();
+    return !isNaN(t) && t >= cutoff;
+  });
+
+  if (inRange.length < 2) return;
+
+  const newest = inRange[0];
+  const oldest = inRange[inRange.length - 1];
+
+  // Extractor seguro de valores
+  const val = (rec, key) => {
+    if (rec[key]) return parseFloat(rec[key]);
+    if (rec.bcv) {
+      if (key === 'usd_bcv') return parseFloat(rec.bcv.usd) || 0;
+      if (key === 'eur_bcv') return parseFloat(rec.bcv.eur) || 0;
+    }
+    if (rec.binance && key === 'usdt_promedio') return parseFloat(rec.binance.promedio) || 0;
+    return 0;
+  };
+
+  const fmt = n => n.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  // --- USD BCV ---
+  const usdNew = val(newest, 'usd_bcv');
+  const usdOld = val(oldest, 'usd_bcv');
+  renderScorecardItem('usd', usdOld, usdNew, days, fmt);
+
+  // --- EUR BCV ---
+  const eurNew = val(newest, 'eur_bcv');
+  const eurOld = val(oldest, 'eur_bcv');
+  renderScorecardItem('eur', eurOld, eurNew, days, fmt);
+
+  // --- USDT Binance ---
+  const usdtNew = val(newest, 'usdt_promedio');
+  const usdtOld = val(oldest, 'usdt_promedio');
+  renderScorecardItem('usdt', usdtOld, usdtNew, days, fmt);
+}
+
+function renderScorecardItem(id, oldVal, newVal, days, fmt) {
+  if (!oldVal || !newVal) return;
+
+  const diff    = newVal - oldVal;
+  const pct     = ((diff / oldVal) * 100);
+  const sign    = diff > 0 ? '+' : '';
+  const dir     = diff > 0 ? 'up' : diff < 0 ? 'down' : 'flat';
+  const arrow   = diff > 0 ? '↑' : diff < 0 ? '↓' : '→';
+
+  const elPct   = document.getElementById(`sc-${id}-pct`);
+  const elArrow = document.getElementById(`sc-${id}-arrow`);
+  const elFrom  = document.getElementById(`sc-${id}-from`);
+  const elTo    = document.getElementById(`sc-${id}-to`);
+  const elAbs   = document.getElementById(`sc-${id}-abs`);
+
+  if (!elPct) return;
+
+  elPct.textContent = `${sign}${pct.toFixed(2)}%`;
+  elPct.className = `scorecard-pct ${dir}`;
+
+  elArrow.textContent = arrow;
+  elArrow.className = `scorecard-arrow ${dir}`;
+
+  elFrom.textContent = `${fmt(oldVal)} Bs.`;
+  elTo.textContent   = `${fmt(newVal)} Bs.`;
+  elAbs.textContent  = `${sign}${fmt(diff)} Bs. en ${days} días`;
 }
