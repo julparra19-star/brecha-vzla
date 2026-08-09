@@ -626,12 +626,13 @@ body {
 
 .card-value {
   font-family: var(--font-heading);
-  font-size: 1.8rem;
+  font-size: clamp(1.4rem, 5vw, 2.3rem);
   font-weight: 800;
   color: var(--text-primary);
   letter-spacing: -0.5px;
   font-variant-numeric: tabular-nums;
   line-height: 1.1;
+  word-break: break-word;
 }
 
 /* Colores para valores de brecha */
@@ -834,9 +835,6 @@ body {
 
 /* Pantallas pequeñas (> 360px) — Ajustes básicos */
 @media (min-width: 360px) {
-  .card-value {
-    font-size: 2rem;
-  }
 }
 
 /* Tablets pequeñas (> 480px) */
@@ -845,9 +843,6 @@ body {
     grid-template-columns: 1fr 1fr 1fr;
   }
 
-  .card-value {
-    font-size: 2.1rem;
-  }
 }
 
 /* Tablets (> 640px) */
@@ -884,10 +879,6 @@ body {
     grid-column: auto;
   }
 
-  .card-value {
-    font-size: 2.3rem;
-  }
-
   .metric-card {
     padding: var(--space-xl);
   }
@@ -905,10 +896,6 @@ body {
 
   .metrics-grid {
     gap: var(--space-lg);
-  }
-
-  .card-value {
-    font-size: 2.5rem;
   }
 
   .chart-container {
@@ -1632,6 +1619,13 @@ body {
   .fab-calculator {
     bottom: 20px;
     right: 20px;
-    padding: 10px 20px;
+    padding: 16px;
+    border-radius: 50%;
+  }
+  .fab-calculator .fab-text {
+    display: none;
+  }
+  .fab-calculator .fab-icon {
+    font-size: 1.5rem;
   }
 }
