@@ -162,6 +162,7 @@ export function initChart(canvasId) {
         },
         y: {
           position: 'left',
+          grace: 5, // Evita zoom microscópico si la variación es de céntimos
           grid: {
             color: 'rgba(255, 255, 255, 0.04)',
             drawBorder: false,
@@ -188,6 +189,7 @@ export function initChart(canvasId) {
         },
         y1: {
           position: 'right',
+          grace: 2, // Evita zoom microscópico si la brecha varía por 0.001%
           grid: {
             drawOnChartArea: false, // No superponer líneas con el eje primario
           },
