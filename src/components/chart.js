@@ -246,59 +246,17 @@ export function updateChart(historyData) {
   const usdtPromedioData = [];
   const brechaUsdData = [];
 
-  // --------------------------------------------------------------------------
-  // Lógica de Agrupación (para suavizar el gráfico en Semana y Mes)
-  // --------------------------------------------------------------------------
   // Invertir el array para que el gráfico vaya del más antiguo (izquierda) al más reciente
   let chartData = [...historyData].reverse();
 
-  // Determinar el rango de tiempo
-  const tOldest = new Date(chartData[0].created_at || chartData[0].timestamp || chartData[0].fecha).getTime();
-  const tNewest = new Date(chartData[chartData.length - 1].created_at || chartData[chartData.length - 1].timestamp || chartData[chartData.length - 1].fecha).getTime();
-  
-  const spanHours = (tNewest - tOldest) / (1000 * 60 * 60);
-
-  // Si el rango es mayor a 48 horas, agrupamos por DÍA
-  if (spanHours > 48) {
-    const grouped = {};
-    chartData.forEach(record => {
-      const d = new Date(record.created_at || record.timestamp || record.fecha);
-      if (isNaN(d.getTime())) return;
-      
-      const dateKey = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
-      if (!grouped[dateKey]) {
-        grouped[dateKey] = {
-          count: 0,
-          dateObj: d, // Guardar objeto Date representativo
-          usd_bcv: 0,
-          usdt_promedio: 0,
-          brecha_usd: 0
-        };
-      }
-      
-      const g = grouped[dateKey];
-      g.count++;
-      
-      // BCV
-      if (record.bcv) g.usd_bcv += parseFloat(record.bcv.usd) || 0;
-      else g.usd_bcv += parseFloat(record.usd_bcv) || parseFloat(record.usd) || 0;
-      
-      // Binance
-      if (record.binance) g.usdt_promedio += parseFloat(record.binance.promedio) || 0;
-      else g.usdt_promedio += parseFloat(record.usdt_promedio) || parseFloat(record.promedio) || 0;
-      
-      // Brecha
-      if (record.brechas) g.brecha_usd += parseFloat(record.brechas.brecha_usd_usdt) || 0;
-      else g.brecha_usd += parseFloat(record.brecha_usd_usdt) || parseFloat(record.brecha_usd) || 0;
-    });
-
-    // Convertir de vuelta a array de registros promediados
-    chartData = Object.values(grouped).map(g => ({
-      created_at: g.dateObj.toISOString(),
-      usd_bcv: g.usd_bcv / g.count,
-      usdt_promedio: g.usdt_promedio / g.count,
-      brecha_usd_usdt: g.brecha_usd / g.count
-    })).sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+  // Determinar el rango de tiempo (ahora puede venir precalculado desde main.js)
+  let spanHours = 0;
+  if (chartData[0]._spanHours) {
+    spanHours = chartData[0]._spanHours;
+  } else {
+    const tOldest = new Date(chartData[0].created_at || chartData[0].timestamp || chartData[0].fecha).getTime();
+    const tNewest = new Date(chartData[chartData.length - 1].created_at || chartData[chartData.length - 1].timestamp || chartData[chartData.length - 1].fecha).getTime();
+    spanHours = (tNewest - tOldest) / (1000 * 60 * 60);
   }
 
   // Iterar los registros listos para graficar

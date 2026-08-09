@@ -189,16 +189,70 @@ async function fetchAndUpdateDashboard() {
 async function fetchAndUpdateHistory(filter = 'last10') {
   const history = await fetchHistory(filter);
 
-  if (!history || !Array.isArray(history)) {
+  if (!history || !Array.isArray(history) || history.length === 0) {
     console.error('[Dashboard] No se pudo obtener el historial');
+    renderHistoryTable([]);
     return;
   }
 
+  let dataToRender = [...history];
+
+  // Determinar rango de tiempo (history viene ordenado del más nuevo al más antiguo)
+  const tNewest = new Date(dataToRender[0].created_at || dataToRender[0].timestamp || dataToRender[0].fecha).getTime();
+  const tOldest = new Date(dataToRender[dataToRender.length - 1].created_at || dataToRender[dataToRender.length - 1].timestamp || dataToRender[dataToRender.length - 1].fecha).getTime();
+  const spanHours = (tNewest - tOldest) / (1000 * 60 * 60);
+
+  if (spanHours > 48) {
+    const grouped = {};
+    dataToRender.forEach(record => {
+      const d = new Date(record.created_at || record.timestamp || record.fecha);
+      if (isNaN(d.getTime())) return;
+      
+      const dateKey = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+      if (!grouped[dateKey]) {
+        grouped[dateKey] = {
+          count: 0,
+          dateObj: d,
+          usd_bcv: 0,
+          eur_bcv: 0,
+          usdt_promedio: 0,
+          brecha_usd: 0
+        };
+      }
+      
+      const g = grouped[dateKey];
+      g.count++;
+      
+      if (record.bcv) {
+        g.usd_bcv += parseFloat(record.bcv.usd) || 0;
+        g.eur_bcv += parseFloat(record.bcv.eur) || 0;
+      } else {
+        g.usd_bcv += parseFloat(record.usd_bcv) || parseFloat(record.usd) || 0;
+        g.eur_bcv += parseFloat(record.eur_bcv) || parseFloat(record.eur) || 0;
+      }
+      
+      if (record.binance) g.usdt_promedio += parseFloat(record.binance.promedio) || 0;
+      else g.usdt_promedio += parseFloat(record.usdt_promedio) || parseFloat(record.promedio) || 0;
+      
+      if (record.brechas) g.brecha_usd += parseFloat(record.brechas.brecha_usd_usdt) || 0;
+      else g.brecha_usd += parseFloat(record.brecha_usd_usdt) || parseFloat(record.brecha_usd) || 0;
+    });
+
+    dataToRender = Object.values(grouped).map(g => ({
+      created_at: g.dateObj.toISOString(),
+      usd_bcv: g.usd_bcv / g.count,
+      eur_bcv: g.eur_bcv / g.count,
+      usdt_promedio: g.usdt_promedio / g.count,
+      brecha_usd_usdt: g.brecha_usd / g.count,
+      _spanHours: spanHours // Flag flag para que el chart sepa que ya está agrupado
+    })).sort((a, b) => new Date(b.created_at) - new Date(a.created_at)); // Volver a ordenar newest -> oldest
+  }
+
   // Actualizar tabla
-  renderHistoryTable(history);
+  renderHistoryTable(dataToRender);
 
   // Actualizar gráfico
-  updateChart(history);
+  updateChart(dataToRender);
 }
 
 /**
@@ -270,14 +324,14 @@ function renderHistoryTable(historyData) {
     return;
   }
 
-  // Crear filas (mostrar los últimos 20 registros, más recientes primero)
-  const recentData = historyData.slice(-20).reverse();
+  // Crear filas (mostrar hasta 31 registros para cubrir el mes agrupado)
+  const recentData = historyData.slice(0, 31);
 
   recentData.forEach((record) => {
     const row = document.createElement('tr');
 
     // Extraer valores según la estructura (plana o anidada)
-    const fecha = formatDate(record.created_at || record.timestamp || record.fecha || '');
+    const fecha = formatDate(record.created_at || record.timestamp || record.fecha || '', record._spanHours > 48);
     const usdBcv = record.bcv ? record.bcv.usd : (record.usd_bcv || record.usd || 0);
     const eurBcv = record.bcv ? record.bcv.eur : (record.eur_bcv || record.eur || 0);
     const usdtProm = record.binance ? record.binance.promedio : (record.usdt_promedio || record.promedio || 0);
@@ -307,19 +361,25 @@ function renderHistoryTable(historyData) {
  * @param {string} dateStr - Cadena de fecha ISO o similar
  * @returns {string} Fecha formateada
  */
-function formatDate(dateStr) {
+function formatDate(dateStr, isGrouped = false) {
   if (!dateStr) return '—';
 
   const date = new Date(dateStr);
   if (isNaN(date.getTime())) return dateStr;
 
-  return date.toLocaleDateString('es-VE', {
+  const options = {
     day: '2-digit',
     month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+    year: 'numeric'
+  };
+
+  if (!isGrouped) {
+    options.hour = '2-digit';
+    options.minute = '2-digit';
+  }
+
+  const result = date.toLocaleDateString('es-VE', options);
+  return isGrouped ? `${result} (Promedio)` : result;
 }
 
 /**
