@@ -53,8 +53,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // 2. Inicializar gráfico
   initChart('rates-chart');
 
-  // 3. Inicializar calculadora de proyección
+  // 3. Inicializar calculadora de proyección y su modal
   initCalculadora();
+  setupCalculatorModal();
 
   // 4. Inicializar filtros de tiempo
   initFilterButtons();
@@ -194,6 +195,9 @@ async function fetchAndUpdateHistory(filter = 'last10') {
     renderHistoryTable([]);
     return;
   }
+
+  // Actualizar Widgets de Salud del Mercado
+  updateMarketHealth(history);
 
   let dataToRender = [...history];
 
@@ -526,4 +530,103 @@ function setupPWAInstall() {
     _deferredInstallPrompt = null;
     btnInstall.classList.add('hidden');
   });
+}
+
+// ============================================================
+// CALCULATOR MODAL & MARKET HEALTH
+// ============================================================
+
+function setupCalculatorModal() {
+  const fab = document.getElementById('fab-calculator');
+  const closeBtn = document.getElementById('close-calc');
+  const overlay = document.getElementById('calc-overlay');
+  
+  if (!fab || !closeBtn || !overlay) return;
+
+  const toggleModal = () => {
+    overlay.classList.toggle('hidden');
+    if (!overlay.classList.contains('hidden')) {
+      // Al abrir, prevenir scroll en el body
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+  };
+
+  fab.addEventListener('click', toggleModal);
+  closeBtn.addEventListener('click', toggleModal);
+  
+  // Cerrar si se hace clic fuera del sidebar
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) toggleModal();
+  });
+}
+
+function updateMarketHealth(history) {
+  if (!history || history.length < 2) return;
+  
+  const bcvHoy = parseFloat(history[0].usd_bcv) || parseFloat(history[0].usd) || 0;
+  
+  // 1. Estatus BCV (Olla de Presión)
+  let diasEstancado = 0;
+  for (let i = 1; i < history.length; i++) {
+    const bcvAnterior = parseFloat(history[i].usd_bcv) || parseFloat(history[i].usd) || 0;
+    if (Math.abs(bcvHoy - bcvAnterior) < 0.01) diasEstancado++;
+    else break;
+  }
+  
+  const elBcvStatus = document.getElementById('health-bcv-status');
+  if (elBcvStatus) {
+    if (diasEstancado === 0) {
+      elBcvStatus.textContent = 'Actualizado hoy';
+      elBcvStatus.style.color = 'var(--accent-green)';
+    } else {
+      elBcvStatus.textContent = `${diasEstancado} días`;
+      elBcvStatus.style.color = diasEstancado >= 3 ? '#ef4444' : 'var(--accent-orange)';
+    }
+  }
+  
+  // 2. Tendencia Binance (Ultimos 7 registros si es posible)
+  const targetIndex = Math.min(7, history.length - 1);
+  const recHoy = history[0];
+  const recViejo = history[targetIndex];
+  
+  const p2pHoy = parseFloat(recHoy.binance?.promedio || recHoy.usdt_promedio || recHoy.promedio) || 0;
+  const p2pViejo = parseFloat(recViejo.binance?.promedio || recViejo.usdt_promedio || recViejo.promedio) || 0;
+  
+  const elP2pTrend = document.getElementById('health-p2p-trend');
+  if (elP2pTrend && p2pViejo > 0) {
+    const diffPct = ((p2pHoy - p2pViejo) / p2pViejo) * 100;
+    const sign = diffPct > 0 ? '+' : '';
+    elP2pTrend.textContent = `${sign}${diffPct.toFixed(2)}%`;
+    elP2pTrend.style.color = diffPct > 0 ? '#ef4444' : 'var(--accent-green)';
+  }
+  
+  // 3. Volatilidad (Max-Min de los ultimos registros)
+  let maxP2p = -1;
+  let minP2p = 999999;
+  for(let i = 0; i <= targetIndex; i++){
+    const rec = history[i];
+    const val = parseFloat(rec.binance?.promedio || rec.usdt_promedio || rec.promedio) || 0;
+    if (val > maxP2p) maxP2p = val;
+    if (val < minP2p && val > 0) minP2p = val;
+  }
+  
+  const elVolat = document.getElementById('health-volatility');
+  if (elVolat && minP2p > 0) {
+    const volatPct = ((maxP2p - minP2p) / minP2p) * 100;
+    let volatText = 'Baja';
+    let volatColor = 'var(--accent-green)';
+    
+    if (volatPct > 2.0) {
+      volatText = 'Alta';
+      volatColor = '#ef4444';
+    } else if (volatPct > 0.8) {
+      volatText = 'Media';
+      volatColor = 'var(--accent-orange)';
+    }
+    
+    elVolat.textContent = volatText;
+    elVolat.style.color = volatColor;
+  }
 }
