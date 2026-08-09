@@ -568,12 +568,22 @@ function updateMarketHealth(history) {
   const bcvHoy = parseFloat(history[0].usd_bcv) || parseFloat(history[0].usd) || 0;
   
   // 1. Estatus BCV (Olla de Presión)
-  let diasEstancado = 0;
+  let fechasUnicasEstancado = new Set();
+  const fechaHoyStr = new Date(history[0].created_at || history[0].timestamp || history[0].fecha).toDateString();
+  
   for (let i = 1; i < history.length; i++) {
     const bcvAnterior = parseFloat(history[i].usd_bcv) || parseFloat(history[i].usd) || 0;
-    if (Math.abs(bcvHoy - bcvAnterior) < 0.01) diasEstancado++;
-    else break;
+    if (Math.abs(bcvHoy - bcvAnterior) < 0.01) {
+      const fechaRecord = new Date(history[i].created_at || history[i].timestamp || history[i].fecha).toDateString();
+      if (fechaRecord !== fechaHoyStr) {
+        fechasUnicasEstancado.add(fechaRecord);
+      }
+    } else {
+      break;
+    }
   }
+  
+  let diasEstancado = fechasUnicasEstancado.size;
   
   const elBcvStatus = document.getElementById('health-bcv-status');
   if (elBcvStatus) {
