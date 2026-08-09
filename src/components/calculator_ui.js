@@ -144,6 +144,11 @@ function renderResultados(data) {
   veredicto.className = `calc-veredicto glass-card nivel-${nivel}`;
   icon.textContent = iconosPorNivel[nivel] || '🤔';
   titulo.textContent = `Proyección a ${dias} día${dias > 1 ? 's' : ''}`;
+  const estacionalidad = data.estacionalidad;
+  if (estacionalidad && estacionalidad.activa) {
+    recomendacion.texto += ` 📅 Nota: El sistema añadió automáticamente un +${estacionalidad.impacto_pct}% a la proyección por picos de demanda estacional (${estacionalidad.motivo}).`;
+  }
+
   descripcion.textContent = recomendacion.texto;
 
   const bi = badgeInfo[nivel];

@@ -62,6 +62,56 @@ function contarDiasHabiles(diasCalendario) {
 }
 
 /**
+ * Detecta si el período de proyección atraviesa fechas de quincena o meses de utilidades
+ * y retorna un multiplicador de demanda.
+ * @param {number} diasCalendario - Días a proyectar
+ * @returns {object} Datos del impacto estacional
+ */
+function detectarImpactoEstacional(diasCalendario) {
+  const hoy = new Date();
+  let cruzaQuincena = false;
+  let cruzaUtilidades = false;
+  
+  for (let i = 1; i <= diasCalendario; i++) {
+    const d = new Date(hoy);
+    d.setDate(hoy.getDate() + i);
+    const diaMes = d.getDate();
+    const mes = d.getMonth() + 1; // 1-12
+    
+    // Quincenas suelen pagarse entre el 14-16 o 29-31
+    if ((diaMes >= 14 && diaMes <= 16) || diaMes >= 29) {
+      cruzaQuincena = true;
+    }
+    // Utilidades / Aguinaldos en Octubre, Noviembre, Diciembre
+    if (mes >= 10 && mes <= 12) {
+      cruzaUtilidades = true;
+    }
+  }
+
+  let multiplicador = 1.0;
+  let motivos = [];
+  let impactoPct = 0;
+
+  if (cruzaQuincena) {
+    multiplicador += 0.015; // +1.5%
+    impactoPct += 1.5;
+    motivos.push('pago de quincena');
+  }
+  if (cruzaUtilidades) {
+    multiplicador += 0.02; // +2.0%
+    impactoPct += 2.0;
+    motivos.push('temporada de utilidades/aguinaldos');
+  }
+
+  return {
+    activa: cruzaQuincena || cruzaUtilidades,
+    multiplicador,
+    impacto_pct: impactoPct,
+    motivo: motivos.length > 0 ? motivos.join(' y ') : ''
+  };
+}
+
+/**
  * Calcula la pendiente (tendencia diaria) de un conjunto de valores
  * usando regresión lineal simple (mínimos cuadrados)
  * @param {number[]} values - Array de valores en orden cronológico
@@ -288,9 +338,12 @@ async function calcularProyeccion(monto, dias, historial, tasasActuales, buyPric
   const diasHabilesEnPeriodo = contarDiasHabiles(dias);
   const usdBcvFuturo     = Math.max(usdBcvHoy + tendencias.usd_bcv * diasHabilesEnPeriodo, 1);
 
-  // Binance: varía todos los días de calendario
-  const usdtCompraFuturo = Math.max(usdtCompraHoy + tendencias.usdt_compra * dias, 1);
-  const usdtVentaFuturo  = Math.max(usdtVentaHoy  + tendencias.usdt_venta  * dias, 1);
+  // Estacionalidad (picos de demanda por quincenas/utilidades)
+  const estacionalidad = detectarImpactoEstacional(dias);
+
+  // Binance: varía todos los días de calendario, afectado por la estacionalidad
+  const usdtCompraFuturo = Math.max(usdtCompraHoy + tendencias.usdt_compra * dias, 1) * estacionalidad.multiplicador;
+  const usdtVentaFuturo  = Math.max(usdtVentaHoy  + tendencias.usdt_venta  * dias, 1) * estacionalidad.multiplicador;
 
   // === VOLATILIDAD BINANCE (detección de choques externos) ===
   const volatilidad = detectarVolatilidadBinance(datosDiarios);
@@ -443,7 +496,8 @@ async function calcularProyeccion(monto, dias, historial, tasasActuales, buyPric
       dias_estancamiento: rachaEstancamiento,
       crecimiento_binance_pct: parseFloat(crecimientoBinanceEnRacha.toFixed(2)),
       scraper_data: scraperData,
-    }
+    },
+    estacionalidad
   };
 }
 
