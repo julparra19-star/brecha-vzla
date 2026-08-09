@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="theme-color" content="#121212">
+  <meta name="theme-color" content="#0a0a1a">
   <meta name="description" content="BrechaVzla — Monitoreo en tiempo real de tasas de cambio BCV, Binance P2P y brechas cambiarias en Venezuela.">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -53,12 +53,14 @@
       </div>
 
       <div class="header-actions">
+        <!-- Botón de notificaciones -->
         <button id="btn-notifications" class="header-btn" title="Activar notificaciones" aria-label="Activar notificaciones">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
             <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
           </svg>
         </button>
+        <!-- Botón de instalar PWA -->
         <button id="btn-install" class="header-btn install-btn hidden" title="Instalar aplicación" aria-label="Instalar aplicación">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -68,6 +70,7 @@
         </button>
       </div>
     </div>
+    <!-- Última actualización -->
     <div class="last-update">
       <span class="update-label">Última actualización:</span>
       <span id="last-update-time" class="update-time">--:--:--</span>
@@ -77,163 +80,144 @@
   <!-- ==================== CONTENIDO PRINCIPAL ==================== -->
   <main class="main-content">
 
-    <!-- ============================================================
-         BANDA 1: Tasas Oficiales (2/3) + Binance P2P (1/3)
-         ============================================================ -->
-    <section class="section banda-1">
-
-      <!-- Bloque Izquierdo 2/3: Tasas Oficiales (3 tarjetas) -->
-      <div class="banda-1-izq">
-        <h2 class="section-title">
-          <span class="section-icon">💰</span>
-          Tasas Oficiales
-        </h2>
-        <div class="metrics-grid hero-grid">
-
-          <!-- Tarjeta USD BCV -->
-          <div class="metric-card card-usd" id="card-usd-bcv">
-            <div class="card-glow"></div>
-            <div class="card-header">
-              <span class="card-badge badge-blue">BCV</span>
-              <span class="card-trend" id="trend-usd-bcv">—</span>
-            </div>
-            <div class="card-body">
-              <span class="card-label">Dólar USD</span>
-              <div class="card-value-wrapper">
-                <span class="card-prefix">Bs.</span>
-                <span class="card-value" id="value-usd-bcv">
-                  <span class="skeleton-text"></span>
-                </span>
-              </div>
-              <!-- Etiquetas dinámicas de tendencia -->
-              <div class="card-trend-labels">
-                <span class="trend-label trend-label-green" id="trend-label-hoy">—</span>
-                <span class="trend-label trend-label-red" id="trend-label-semana">—</span>
-              </div>
-            </div>
-            <div class="card-footer">
-              <span class="card-source">Banco Central de Venezuela</span>
+    <!-- === SECCIÓN HERO: Métricas principales === -->
+    <section class="section hero-section">
+      <h2 class="section-title">
+        <span class="section-icon">💰</span>
+        Tasas Oficiales
+      </h2>
+      <div class="metrics-grid hero-grid">
+        <!-- Tarjeta USD BCV -->
+        <div class="metric-card card-usd" id="card-usd-bcv">
+          <div class="card-glow"></div>
+          <div class="card-header">
+            <span class="card-badge badge-blue">BCV</span>
+            <span class="card-trend" id="trend-usd-bcv">—</span>
+          </div>
+          <div class="card-body">
+            <span class="card-label">Dólar USD</span>
+            <div class="card-value-wrapper">
+              <span class="card-prefix">Bs.</span>
+              <span class="card-value" id="value-usd-bcv">
+                <span class="skeleton-text"></span>
+              </span>
             </div>
           </div>
+          <div class="card-footer">
+            <span class="card-source">Banco Central de Venezuela</span>
+          </div>
+        </div>
 
-          <!-- Tarjeta EUR BCV (Dólar Paralelo) -->
-          <div class="metric-card card-eur" id="card-eur-bcv">
-            <div class="card-glow"></div>
-            <div class="card-header">
-              <span class="card-badge badge-purple">BCV</span>
-              <span class="card-trend" id="trend-eur-bcv">—</span>
-            </div>
-            <div class="card-body">
-              <span class="card-label">Euro EUR</span>
-              <div class="card-value-wrapper">
-                <span class="card-prefix">Bs.</span>
-                <span class="card-value" id="value-eur-bcv">
-                  <span class="skeleton-text"></span>
-                </span>
-              </div>
-            </div>
-            <div class="card-footer">
-              <span class="card-source">Banco Central de Venezuela</span>
+        <!-- Tarjeta EUR BCV -->
+        <div class="metric-card card-eur" id="card-eur-bcv">
+          <div class="card-glow"></div>
+          <div class="card-header">
+            <span class="card-badge badge-purple">BCV</span>
+            <span class="card-trend" id="trend-eur-bcv">—</span>
+          </div>
+          <div class="card-body">
+            <span class="card-label">Euro EUR</span>
+            <div class="card-value-wrapper">
+              <span class="card-prefix">Bs.</span>
+              <span class="card-value" id="value-eur-bcv">
+                <span class="skeleton-text"></span>
+              </span>
             </div>
           </div>
+          <div class="card-footer">
+            <span class="card-source">Banco Central de Venezuela</span>
+          </div>
+        </div>
 
-          <!-- Tarjeta USDT Promedio P2P -->
-          <div class="metric-card card-usdt featured" id="card-usdt-promedio">
-            <div class="card-glow"></div>
-            <div class="card-header">
-              <span class="card-badge badge-cyan">P2P</span>
-              <span class="card-trend" id="trend-usdt-promedio">—</span>
-            </div>
-            <div class="card-body">
-              <span class="card-label">Promedio Binance P2P</span>
-              <div class="card-value-wrapper">
-                <span class="card-prefix">Bs.</span>
-                <span class="card-value" id="value-usdt-promedio">
-                  <span class="skeleton-text"></span>
-                </span>
-              </div>
-            </div>
-            <div class="card-footer">
-              <span class="card-source">Binance P2P Venezuela</span>
+        <!-- Tarjeta USDT Promedio P2P -->
+        <div class="metric-card card-usdt featured" id="card-usdt-promedio">
+          <div class="card-glow"></div>
+          <div class="card-header">
+            <span class="card-badge badge-cyan">P2P</span>
+            <span class="card-trend" id="trend-usdt-promedio">—</span>
+          </div>
+          <div class="card-body">
+            <span class="card-label">USDT Promedio</span>
+            <div class="card-value-wrapper">
+              <span class="card-prefix">Bs.</span>
+              <span class="card-value" id="value-usdt-promedio">
+                <span class="skeleton-text"></span>
+              </span>
             </div>
           </div>
-
+          <div class="card-footer">
+            <span class="card-source">Binance P2P Venezuela</span>
+          </div>
         </div>
       </div>
-
-      <!-- Bloque Derecho 1/3: Binance P2P (COMPRA + VENTA) -->
-      <div class="banda-1-der">
-        <h2 class="section-title">
-          <span class="section-icon">🔄</span>
-          Binance P2P
-        </h2>
-        <div class="metrics-grid p2p-grid">
-
-          <!-- USDT Compra -->
-          <div class="metric-card card-compra" id="card-usdt-compra">
-            <div class="card-glow"></div>
-            <div class="card-header">
-              <span class="card-badge badge-green">COMPRA</span>
-              <span class="card-trend" id="trend-usdt-compra">—</span>
-            </div>
-            <div class="card-body">
-              <span class="card-label">USDT Compra</span>
-              <div class="card-value-wrapper">
-                <span class="card-prefix">Bs.</span>
-                <span class="card-value" id="value-usdt-compra">
-                  <span class="skeleton-text"></span>
-                </span>
-              </div>
-            </div>
-            <div class="card-footer">
-              <span class="card-source">Precio de compra P2P</span>
-            </div>
-          </div>
-
-          <!-- USDT Venta -->
-          <div class="metric-card card-venta" id="card-usdt-venta">
-            <div class="card-glow"></div>
-            <div class="card-header">
-              <span class="card-badge badge-red">VENTA</span>
-              <span class="card-trend" id="trend-usdt-venta">—</span>
-            </div>
-            <div class="card-body">
-              <span class="card-label">USDT Venta</span>
-              <div class="card-value-wrapper">
-                <span class="card-prefix">Bs.</span>
-                <span class="card-value" id="value-usdt-venta">
-                  <span class="skeleton-text"></span>
-                </span>
-              </div>
-            </div>
-            <div class="card-footer">
-              <span class="card-source">Precio de venta P2P</span>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
     </section>
 
-    <!-- ============================================================
-         BANDA 2: Brechas Cambiarias (3 columnas iguales)
-         ============================================================ -->
-    <section class="section banda-2">
+    <!-- === SECCIÓN BINANCE P2P === -->
+    <section class="section p2p-section">
+      <h2 class="section-title">
+        <span class="section-icon">🔄</span>
+        Binance P2P
+      </h2>
+      <div class="metrics-grid p2p-grid">
+        <!-- USDT Compra -->
+        <div class="metric-card card-compra" id="card-usdt-compra">
+          <div class="card-glow"></div>
+          <div class="card-header">
+            <span class="card-badge badge-green">COMPRA</span>
+            <span class="card-trend" id="trend-usdt-compra">—</span>
+          </div>
+          <div class="card-body">
+            <span class="card-label">USDT Compra</span>
+            <div class="card-value-wrapper">
+              <span class="card-prefix">Bs.</span>
+              <span class="card-value" id="value-usdt-compra">
+                <span class="skeleton-text"></span>
+              </span>
+            </div>
+          </div>
+          <div class="card-footer">
+            <span class="card-source">Precio de compra P2P</span>
+          </div>
+        </div>
+
+        <!-- USDT Venta -->
+        <div class="metric-card card-venta" id="card-usdt-venta">
+          <div class="card-glow"></div>
+          <div class="card-header">
+            <span class="card-badge badge-red">VENTA</span>
+            <span class="card-trend" id="trend-usdt-venta">—</span>
+          </div>
+          <div class="card-body">
+            <span class="card-label">USDT Venta</span>
+            <div class="card-value-wrapper">
+              <span class="card-prefix">Bs.</span>
+              <span class="card-value" id="value-usdt-venta">
+                <span class="skeleton-text"></span>
+              </span>
+            </div>
+          </div>
+          <div class="card-footer">
+            <span class="card-source">Precio de venta P2P</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- === SECCIÓN BRECHAS === -->
+    <section class="section gap-section">
       <h2 class="section-title">
         <span class="section-icon">📐</span>
         Brechas Cambiarias
       </h2>
       <div class="metrics-grid gap-grid">
-
-        <!-- Tarjeta 1/3: Brecha Dólar BCV/P2P -->
+        <!-- Brecha USD/USDT -->
         <div class="metric-card card-gap" id="card-brecha-usd">
           <div class="card-glow"></div>
           <div class="card-header">
             <span class="card-badge badge-blue">USD/USDT</span>
           </div>
           <div class="card-body">
-            <span class="card-label">Brecha Dólar BCV/P2P</span>
+            <span class="card-label">Brecha USD</span>
             <div class="card-value-wrapper">
               <span class="card-value gap-value" id="value-brecha-usd">
                 <span class="skeleton-text"></span>
@@ -248,19 +232,19 @@
           </div>
         </div>
 
-        <!-- Tarjeta 2/3 DESTACADA: Promedio Móvil Brecha (7 días) -->
-        <div class="metric-card card-gap featured" id="card-brecha-eur">
+        <!-- Brecha EUR/USDT -->
+        <div class="metric-card card-gap" id="card-brecha-eur">
           <div class="card-glow"></div>
           <div class="card-header">
-            <span class="card-badge badge-orange">7 DÍAS</span>
+            <span class="card-badge badge-purple">EUR/USDT</span>
           </div>
           <div class="card-body">
-            <span class="card-label">Promedio Móvil Brecha</span>
+            <span class="card-label">Brecha EUR</span>
             <div class="card-value-wrapper">
-              <span class="card-value gap-value gap-featured-value" id="value-brecha-eur">
+              <span class="card-value gap-value" id="value-brecha-eur">
                 <span class="skeleton-text"></span>
               </span>
-              <span class="card-suffix card-suffix-featured">%</span>
+              <span class="card-suffix">%</span>
             </div>
           </div>
           <div class="card-footer">
@@ -270,14 +254,14 @@
           </div>
         </div>
 
-        <!-- Tarjeta 3/3: Spread USDT (Compra/Venta) -->
+        <!-- Spread USDT -->
         <div class="metric-card card-gap" id="card-spread-usdt">
           <div class="card-glow"></div>
           <div class="card-header">
             <span class="card-badge badge-yellow">SPREAD</span>
           </div>
           <div class="card-body">
-            <span class="card-label">Spread USDT (Compra/Venta)</span>
+            <span class="card-label">Spread USDT</span>
             <div class="card-value-wrapper">
               <span class="card-value gap-value" id="value-spread-usdt">
                 <span class="skeleton-text"></span>
@@ -291,310 +275,305 @@
             </div>
           </div>
         </div>
-
       </div>
     </section>
 
-    <!-- ============================================================
-         BANDA 3: Análisis y Utilidad — 3 columnas iguales
-         Gráfico | Tabla | Calculadora
-         ============================================================ -->
-    <section class="section banda-3">
-
-      <!-- ── Columna 1: Historial de Tasas ── -->
-      <div class="banda-3-col">
-        <div class="section-header-row">
-          <h2 class="section-title">
-            <span class="section-icon">📈</span>
-            Historial de Tasas
-          </h2>
-          <div class="filter-bar" id="chart-filter-bar">
-            <button class="filter-btn active" data-filter="last10">Últ.10</button>
-            <button class="filter-btn" data-filter="today">Hoy</button>
-            <button class="filter-btn" data-filter="week">Semana</button>
-            <button class="filter-btn" data-filter="month">Mes</button>
-          </div>
-        </div>
-        <div class="chart-container glass-card">
-          <canvas id="rates-chart"></canvas>
-        </div>
-      </div>
-
-      <!-- ── Columna 2: Registro Histórico ── -->
-      <div class="banda-3-col">
-        <div class="section-header-row">
-          <h2 class="section-title">
-            <span class="section-icon">🕐</span>
-            Registro Histórico
-          </h2>
-          <div class="filter-bar" id="table-filter-bar">
-            <button class="filter-btn active" data-filter="last10">Últ.10</button>
-            <button class="filter-btn" data-filter="today">Hoy</button>
-            <button class="filter-btn" data-filter="week">Sem</button>
-            <button class="filter-btn" data-filter="month">Mes</button>
-          </div>
-        </div>
-        <div class="table-container glass-card">
-          <div class="table-scroll">
-            <table class="history-table" id="history-table">
-              <thead>
-                <tr>
-                  <th>Fecha</th>
-                  <th>USD BCV</th>
-                  <th>EUR BCV</th>
-                  <th>USDT Prom.</th>
-                  <th>Brecha USD</th>
-                </tr>
-              </thead>
-              <tbody id="history-table-body">
-                <tr class="skeleton-row"><td colspan="5"><span class="skeleton-text wide"></span></td></tr>
-                <tr class="skeleton-row"><td colspan="5"><span class="skeleton-text wide"></span></td></tr>
-                <tr class="skeleton-row"><td colspan="5"><span class="skeleton-text wide"></span></td></tr>
-              </tbody>
-            </table>
-          </div>
-          <div style="padding: 0.75rem 1rem 1rem;">
-            <button class="btn-primary" id="btn-export-excel" style="width:100%; padding: 0.55rem 1rem; font-size: 0.82rem;">
-              📥 Exportar Excel (9 AM / 5 PM)
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── Columna 3: Calculadora de Proyección ── -->
-      <div class="banda-3-col" id="calculadora">
+    <!-- === SECCIÓN GRÁFICO === -->
+    <section class="section chart-section">
+      <div class="section-header-row">
         <h2 class="section-title">
-          <span class="section-icon">🧮</span>
-          Calculadora de Proyección
+          <span class="section-icon">📈</span>
+          Historial de Tasas
         </h2>
-        <p class="calc-subtitle">¿Es buen momento para comprar USDT? Ingresa tu monto y el plazo.</p>
+        <div class="filter-bar" id="chart-filter-bar">
+          <button class="filter-btn active" data-filter="last10">Últimos 10</button>
+          <button class="filter-btn" data-filter="today">Hoy</button>
+          <button class="filter-btn" data-filter="week">Semana</button>
+          <button class="filter-btn" data-filter="month">Mes</button>
+        </div>
+      </div>
+      <div class="chart-container glass-card">
+        <canvas id="rates-chart"></canvas>
+      </div>
+    </section>
 
-        <!-- Formulario de entrada -->
-        <div class="calc-form glass-card">
-          <div class="calc-inputs">
-            <div class="calc-input-group">
-              <label class="calc-label" for="calc-amount">Monto a invertir</label>
-              <div class="calc-input-wrapper">
-                <span class="calc-input-prefix">Bs.</span>
-                <input
-                  type="number"
-                  id="calc-amount"
-                  class="calc-input"
-                  placeholder="100.000"
-                  min="1"
-                  max="999999999"
-                  step="1000"
-                >
-              </div>
-            </div>
-
-            <div class="calc-input-group">
-              <label class="calc-label" for="calc-days">Días a proyectar</label>
-              <div class="calc-days-grid">
-                <button class="calc-day-btn" data-days="3">3 días</button>
-                <button class="calc-day-btn" data-days="5">5 días</button>
-                <button class="calc-day-btn" data-days="7">7 días</button>
-                <button class="calc-day-btn" data-days="15">15 días</button>
-              </div>
-              <div class="calc-input-wrapper" style="margin-top: 0.5rem;">
-                <span class="calc-input-prefix">📅</span>
-                <input
-                  type="number"
-                  id="calc-days"
-                  class="calc-input"
-                  placeholder="Personalizado"
-                  min="1"
-                  max="90"
-                  step="1"
-                >
-              </div>
-            </div>
-          </div>
-
-          <!-- Precios manuales opcionales -->
-          <div class="calc-inputs calc-manual-prices">
-            <div class="calc-input-group">
-              <label class="calc-label">💰 Precio real de compra (opcional)</label>
-              <div class="calc-input-wrapper">
-                <span class="calc-input-prefix">Bs.</span>
-                <input type="number" id="calc-precio-compra" class="calc-input" placeholder="Precio en Binance ahora" min="1" step="0.01">
-              </div>
-              <span class="calc-hint">⚠️ El precio P2P real suele ser mayor al de la API.</span>
-            </div>
-            <div class="calc-input-group">
-              <label class="calc-label">🎯 Precio objetivo de venta (opcional)</label>
-              <div class="calc-input-wrapper">
-                <span class="calc-input-prefix">Bs.</span>
-                <input type="number" id="calc-precio-venta" class="calc-input" placeholder="Precio al que planeas vender" min="1" step="0.01">
-              </div>
-              <span class="calc-hint">Si lo dejas vacío, se usa el precio proyectado.</span>
-            </div>
-          </div>
-
-          <button id="btn-calcular" class="calc-btn">
-            <span class="calc-btn-icon">⚡</span>
-            Calcular Proyección
+    <!-- === SECCIÓN HISTORIAL / TABLA === -->
+    <section class="section history-section">
+      <div class="section-header-row">
+        <h2 class="section-title">
+          <span class="section-icon">🕐</span>
+          Registro Histórico
+        </h2>
+        <div class="filter-bar" id="table-filter-bar">
+          <button class="filter-btn active" data-filter="last10">Últimos 10</button>
+          <button class="filter-btn" data-filter="today">Hoy</button>
+          <button class="filter-btn" data-filter="week">Semana</button>
+          <button class="filter-btn" data-filter="month">Mes</button>
+          <button class="btn-primary" id="btn-export-excel" style="margin-left: 10px; padding: 0.4rem 1rem; font-size: 0.85rem; height: auto;">
+            📥 Exportar Excel (9 AM / 5 PM)
           </button>
         </div>
-
-        <!-- Resultados (ocultos hasta que se calcula) -->
-        <div id="calc-resultados" class="calc-resultados hidden">
-
-          <!-- Veredicto principal -->
-          <div id="calc-veredicto" class="calc-veredicto glass-card">
-            <div class="veredicto-icon" id="veredicto-icon">🤔</div>
-            <div class="veredicto-texto">
-              <h3 id="veredicto-titulo" class="veredicto-titulo">Analizando…</h3>
-              <p id="veredicto-descripcion" class="veredicto-descripcion"></p>
-            </div>
-            <div class="veredicto-badge" id="veredicto-badge"></div>
-          </div>
-
-          <!-- Métricas de la proyección -->
-          <div class="calc-metricas">
-
-            <!-- Escenario USDT Binance -->
-            <div class="calc-metrica-card glass-card">
-              <div class="metrica-header">
-                <span class="metrica-icon">🔄</span>
-                <span class="metrica-titulo">Comprar USDT hoy en Binance</span>
-              </div>
-              <div class="metrica-cuerpo">
-                <div class="metrica-fila">
-                  <span class="metrica-label">USDT que compras hoy</span>
-                  <span class="metrica-valor" id="calc-usdt-comprados">—</span>
-                </div>
-                <div class="metrica-fila">
-                  <span class="metrica-label">Bs. que recuperas en <span class="calc-dias-texto">N</span> días</span>
-                  <span class="metrica-valor" id="calc-bs-recuperados">—</span>
-                </div>
-                <div class="metrica-fila destacada">
-                  <span class="metrica-label">Ganancia / Pérdida</span>
-                  <span class="metrica-valor" id="calc-ganancia-bs">—</span>
-                </div>
-                <div class="metrica-fila">
-                  <span class="metrica-label">Rentabilidad</span>
-                  <span class="metrica-valor bold" id="calc-rentabilidad">—</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Costo de no hacer nada -->
-            <div class="calc-metrica-card glass-card">
-              <div class="metrica-header">
-                <span class="metrica-icon">💸</span>
-                <span class="metrica-titulo">Costo de no hacer nada</span>
-              </div>
-              <div class="metrica-cuerpo">
-                <div class="metrica-fila">
-                  <span class="metrica-label">USD BCV hoy</span>
-                  <span class="metrica-valor" id="calc-usd-hoy">—</span>
-                </div>
-                <div class="metrica-fila">
-                  <span class="metrica-label">USD BCV proyectado en <span class="calc-dias-texto">N</span> días</span>
-                  <span class="metrica-valor" id="calc-usd-futuro">—</span>
-                </div>
-                <div class="metrica-fila destacada">
-                  <span class="metrica-label">📉 Poder adquisitivo que pierdes</span>
-                  <span class="metrica-valor" id="calc-perdida-inaccion">—</span>
-                </div>
-                <div class="metrica-fila">
-                  <span class="metrica-label">En porcentaje de tu monto</span>
-                  <span class="metrica-valor bold" id="calc-perdida-pct">—</span>
-                </div>
-                <div class="metrica-fila">
-                  <span class="metrica-label">Ventaja Binance vs quedarse quieto</span>
-                  <span class="metrica-valor bold" id="calc-ventaja-bcv">—</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Tendencias y confianza -->
-            <div class="calc-metrica-card glass-card">
-              <div class="metrica-header">
-                <span class="metrica-icon">📊</span>
-                <span class="metrica-titulo">Tendencia diaria detectada</span>
-              </div>
-              <div class="metrica-cuerpo">
-                <div class="metrica-fila">
-                  <span class="metrica-label">Cambio diario USDT compra</span>
-                  <span class="metrica-valor" id="calc-tend-compra">—</span>
-                </div>
-                <div class="metrica-fila">
-                  <span class="metrica-label">Cambio diario USDT venta</span>
-                  <span class="metrica-valor" id="calc-tend-venta">—</span>
-                </div>
-                <div class="metrica-fila">
-                  <span class="metrica-label">Cambio BCV por día hábil</span>
-                  <span class="metrica-valor" id="calc-tend-bcv">—</span>
-                </div>
-                <div class="metrica-fila">
-                  <span class="metrica-label">Días hábiles BCV en el período</span>
-                  <span class="metrica-valor" id="calc-dias-habiles">—</span>
-                </div>
-                <div class="metrica-fila">
-                  <span class="metrica-label">Días de historial analizados</span>
-                  <span class="metrica-valor" id="calc-dias-analizados">—</span>
-                </div>
-                <div class="metrica-fila">
-                  <span class="metrica-label">Confianza del modelo</span>
-                  <span class="metrica-badge" id="calc-confianza">—</span>
-                </div>
-              </div>
-            </div>
-
-          </div>
-
-          <!-- Advertencia de confianza baja -->
-          <div id="calc-advertencia" class="calc-advertencia hidden">
-            ⚠️ <strong>Datos históricos limitados:</strong> La proyección se basa en pocas muestras. Los resultados serán más precisos a medida que el sistema acumule más datos (mínimo 7 días recomendados).
-          </div>
-
-          <!-- Precisión real del modelo (backtesting) -->
-          <div id="calc-backtest" class="calc-backtest glass-card hidden">
-            <div class="backtest-header">
-              <span class="backtest-icon">🔬</span>
-              <div>
-                <h4 class="backtest-titulo">Precisión real del modelo</h4>
-                <p id="backtest-muestras" class="backtest-subtitulo">—</p>
-              </div>
-            </div>
-            <div class="backtest-row">
-              <div class="backtest-label-row">
-                <span class="backtest-asset">📊 USD BCV</span>
-                <span id="backtest-bcv-pct" class="backtest-pct">—</span>
-              </div>
-              <div class="backtest-bar-track">
-                <div id="backtest-bcv-bar" class="backtest-bar-fill"></div>
-              </div>
-              <p id="backtest-bcv-estable" class="backtest-nota"></p>
-              <p id="backtest-bcv-nota" class="backtest-nota"></p>
-            </div>
-            <div class="backtest-row">
-              <div class="backtest-label-row">
-                <span class="backtest-asset">💱 USDT Binance</span>
-                <span id="backtest-usdt-pct" class="backtest-pct">—</span>
-              </div>
-              <div class="backtest-bar-track">
-                <div id="backtest-usdt-bar" class="backtest-bar-fill"></div>
-              </div>
-              <p id="backtest-usdt-nota" class="backtest-nota"></p>
-            </div>
-          </div>
-
+      </div>
+      <div class="table-container glass-card">
+        <div class="table-scroll">
+          <table class="history-table" id="history-table">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>USD BCV</th>
+                <th>EUR BCV</th>
+                <th>USDT Prom.</th>
+                <th>Brecha USD</th>
+              </tr>
+            </thead>
+            <tbody id="history-table-body">
+              <!-- Filas skeleton de carga -->
+              <tr class="skeleton-row"><td colspan="5"><span class="skeleton-text wide"></span></td></tr>
+              <tr class="skeleton-row"><td colspan="5"><span class="skeleton-text wide"></span></td></tr>
+              <tr class="skeleton-row"><td colspan="5"><span class="skeleton-text wide"></span></td></tr>
+            </tbody>
+          </table>
         </div>
-
-        <!-- Estado de carga de la calculadora -->
-        <div id="calc-loading" class="calc-loading hidden">
-          <div class="loader-ring"></div>
-          <span>Calculando proyección…</span>
-        </div>
-
-      </div><!-- /banda-3-col calculadora -->
-
+      </div>
     </section>
 
   </main>
+
+  <!-- ==================== SECCIÓN CALCULADORA ==================== -->
+  <section class="calc-section" id="calculadora">
+    <div class="calc-inner">
+      <h2 class="section-title">
+        <span class="section-icon">🧮</span>
+        Calculadora de Proyección
+      </h2>
+      <p class="calc-subtitle">¿Es buen momento para comprar USDT? Ingresa tu monto y el plazo, y te diremos qué esperar.</p>
+
+      <!-- Formulario de entrada -->
+      <div class="calc-form glass-card">
+        <div class="calc-inputs">
+          <div class="calc-input-group">
+            <label class="calc-label" for="calc-amount">Monto a invertir</label>
+            <div class="calc-input-wrapper">
+              <span class="calc-input-prefix">Bs.</span>
+              <input
+                type="number"
+                id="calc-amount"
+                class="calc-input"
+                placeholder="100.000"
+                min="1"
+                max="999999999"
+                step="1000"
+              >
+            </div>
+          </div>
+
+          <div class="calc-input-group">
+            <label class="calc-label" for="calc-days">Días a proyectar</label>
+            <div class="calc-days-grid">
+              <button class="calc-day-btn" data-days="3">3 días</button>
+              <button class="calc-day-btn" data-days="5">5 días</button>
+              <button class="calc-day-btn" data-days="7">7 días</button>
+              <button class="calc-day-btn" data-days="15">15 días</button>
+            </div>
+            <div class="calc-input-wrapper" style="margin-top: 0.5rem;">
+              <span class="calc-input-prefix">📅</span>
+              <input
+                type="number"
+                id="calc-days"
+                class="calc-input"
+                placeholder="Personalizado"
+                min="1"
+                max="90"
+                step="1"
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- Precios manuales opcionales -->
+        <div class="calc-inputs calc-manual-prices">
+          <div class="calc-input-group">
+            <label class="calc-label">💰 Precio real de compra (opcional)</label>
+            <div class="calc-input-wrapper">
+              <span class="calc-input-prefix">Bs.</span>
+              <input type="number" id="calc-precio-compra" class="calc-input" placeholder="Precio que ves en Binance ahora" min="1" step="0.01">
+            </div>
+            <span class="calc-hint">⚠️ El precio P2P real suele ser mayor al de la API. Ingrésalo aquí para mayor precisión.</span>
+          </div>
+          <div class="calc-input-group">
+            <label class="calc-label">🎯 Precio objetivo de venta (opcional)</label>
+            <div class="calc-input-wrapper">
+              <span class="calc-input-prefix">Bs.</span>
+              <input type="number" id="calc-precio-venta" class="calc-input" placeholder="Precio al que planeas vender" min="1" step="0.01">
+            </div>
+            <span class="calc-hint">Si lo dejas vacío, se usa el precio proyectado por el modelo.</span>
+          </div>
+        </div>
+
+        <button id="btn-calcular" class="calc-btn">
+          <span class="calc-btn-icon">⚡</span>
+          Calcular Proyección
+        </button>
+      </div>
+
+      <!-- Resultados (ocultos hasta que se calcula) -->
+      <div id="calc-resultados" class="calc-resultados hidden">
+
+        <!-- Veredicto principal -->
+        <div id="calc-veredicto" class="calc-veredicto glass-card">
+          <div class="veredicto-icon" id="veredicto-icon">🤔</div>
+          <div class="veredicto-texto">
+            <h3 id="veredicto-titulo" class="veredicto-titulo">Analizando…</h3>
+            <p id="veredicto-descripcion" class="veredicto-descripcion"></p>
+          </div>
+          <div class="veredicto-badge" id="veredicto-badge"></div>
+        </div>
+
+        <!-- Métricas de la proyección -->
+        <div class="calc-metricas">
+
+          <!-- Escenario USDT Binance -->
+          <div class="calc-metrica-card glass-card">
+            <div class="metrica-header">
+              <span class="metrica-icon">🔄</span>
+              <span class="metrica-titulo">Comprar USDT hoy en Binance</span>
+            </div>
+            <div class="metrica-cuerpo">
+              <div class="metrica-fila">
+                <span class="metrica-label">USDT que compras hoy</span>
+                <span class="metrica-valor" id="calc-usdt-comprados">—</span>
+              </div>
+              <div class="metrica-fila">
+                <span class="metrica-label">Bs. que recuperas en <span class="calc-dias-texto">N</span> días</span>
+                <span class="metrica-valor" id="calc-bs-recuperados">—</span>
+              </div>
+              <div class="metrica-fila destacada">
+                <span class="metrica-label">Ganancia / Pérdida</span>
+                <span class="metrica-valor" id="calc-ganancia-bs">—</span>
+              </div>
+              <div class="metrica-fila">
+                <span class="metrica-label">Rentabilidad</span>
+                <span class="metrica-valor bold" id="calc-rentabilidad">—</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Costo de no hacer nada -->
+          <div class="calc-metrica-card glass-card">
+            <div class="metrica-header">
+              <span class="metrica-icon">💸</span>
+              <span class="metrica-titulo">Costo de no hacer nada</span>
+            </div>
+            <div class="metrica-cuerpo">
+              <div class="metrica-fila">
+                <span class="metrica-label">USD BCV hoy</span>
+                <span class="metrica-valor" id="calc-usd-hoy">—</span>
+              </div>
+              <div class="metrica-fila">
+                <span class="metrica-label">USD BCV proyectado en <span class="calc-dias-texto">N</span> días</span>
+                <span class="metrica-valor" id="calc-usd-futuro">—</span>
+              </div>
+              <div class="metrica-fila destacada">
+                <span class="metrica-label">📉 Poder adquisitivo que pierdes</span>
+                <span class="metrica-valor" id="calc-perdida-inaccion">—</span>
+              </div>
+              <div class="metrica-fila">
+                <span class="metrica-label">En porcentaje de tu monto</span>
+                <span class="metrica-valor bold" id="calc-perdida-pct">—</span>
+              </div>
+              <div class="metrica-fila">
+                <span class="metrica-label">Ventaja Binance vs quedarse quieto</span>
+                <span class="metrica-valor bold" id="calc-ventaja-bcv">—</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tendencias y confianza -->
+          <div class="calc-metrica-card glass-card">
+            <div class="metrica-header">
+              <span class="metrica-icon">📊</span>
+              <span class="metrica-titulo">Tendencia diaria detectada</span>
+            </div>
+            <div class="metrica-cuerpo">
+              <div class="metrica-fila">
+                <span class="metrica-label">Cambio diario USDT compra</span>
+                <span class="metrica-valor" id="calc-tend-compra">—</span>
+              </div>
+              <div class="metrica-fila">
+                <span class="metrica-label">Cambio diario USDT venta</span>
+                <span class="metrica-valor" id="calc-tend-venta">—</span>
+              </div>
+              <div class="metrica-fila">
+                <span class="metrica-label">Cambio BCV por día hábil</span>
+                <span class="metrica-valor" id="calc-tend-bcv">—</span>
+              </div>
+              <div class="metrica-fila">
+                <span class="metrica-label">Días hábiles BCV en el período</span>
+                <span class="metrica-valor" id="calc-dias-habiles">—</span>
+              </div>
+              <div class="metrica-fila">
+                <span class="metrica-label">Días de historial analizados</span>
+                <span class="metrica-valor" id="calc-dias-analizados">—</span>
+              </div>
+              <div class="metrica-fila">
+                <span class="metrica-label">Confianza del modelo</span>
+                <span class="metrica-badge" id="calc-confianza">—</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Advertencia de confianza baja -->
+        <div id="calc-advertencia" class="calc-advertencia hidden">
+          ⚠️ <strong>Datos históricos limitados:</strong> La proyección se basa en pocas muestras. Los resultados serán más precisos a medida que el sistema acumule más datos (mínimo 7 días recomendados).
+        </div>
+
+        <!-- Precisión real del modelo (backtesting) -->
+        <div id="calc-backtest" class="calc-backtest glass-card hidden">
+          <div class="backtest-header">
+            <span class="backtest-icon">🔬</span>
+            <div>
+              <h4 class="backtest-titulo">Precisión real del modelo</h4>
+              <p id="backtest-muestras" class="backtest-subtitulo">—</p>
+            </div>
+          </div>
+
+          <div class="backtest-row">
+            <div class="backtest-label-row">
+              <span class="backtest-asset">📊 USD BCV</span>
+              <span id="backtest-bcv-pct" class="backtest-pct">—</span>
+            </div>
+            <div class="backtest-bar-track">
+              <div id="backtest-bcv-bar" class="backtest-bar-fill"></div>
+            </div>
+            <p id="backtest-bcv-estable" class="backtest-nota"></p>
+            <p id="backtest-bcv-nota" class="backtest-nota"></p>
+          </div>
+
+          <div class="backtest-row">
+            <div class="backtest-label-row">
+              <span class="backtest-asset">💱 USDT Binance</span>
+              <span id="backtest-usdt-pct" class="backtest-pct">—</span>
+            </div>
+            <div class="backtest-bar-track">
+              <div id="backtest-usdt-bar" class="backtest-bar-fill"></div>
+            </div>
+            <p id="backtest-usdt-nota" class="backtest-nota"></p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Estado de carga de la calculadora -->
+      <div id="calc-loading" class="calc-loading hidden">
+        <div class="loader-ring"></div>
+        <span>Calculando proyección…</span>
+      </div>
+
+    </div>
+  </section>
+
 
   <!-- ==================== FOOTER ==================== -->
   <footer class="app-footer">
@@ -603,7 +582,7 @@
         <span class="footer-brand">BrechaVzla</span> — Monitoreo de tasas cambiarias
       </p>
       <p class="footer-credits">
-        Datos de BCV y Binance P2P · Actualización automática cada 10 min
+        Datos de BCV y Binance P2P · Actualización automática cada 5 min
       </p>
     </div>
   </footer>
