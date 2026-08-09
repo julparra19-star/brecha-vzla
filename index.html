@@ -359,13 +359,11 @@
             <div class="calc-input-wrapper">
               <span class="calc-input-prefix">Bs.</span>
               <input
-                type="number"
+                type="text"
                 id="calc-amount"
                 class="calc-input"
                 placeholder="100.000"
-                min="1"
-                max="999999999"
-                step="1000"
+                inputmode="numeric"
               >
             </div>
           </div>
@@ -529,21 +527,6 @@
             </div>
           </div>
 
-          <!-- Volatilidad Binance -->
-          <div class="calc-metrica-card glass-card hidden" id="calc-volatilidad">
-            <div class="metrica-header">
-              <span class="metrica-icon">🌪️</span>
-              <span class="metrica-titulo">Volatilidad Binance P2P</span>
-            </div>
-            <div class="metrica-cuerpo">
-              <div class="metrica-fila">
-                <span class="metrica-label">Nivel de volatilidad</span>
-                <span id="calc-vol-badge" class="vol-badge">—</span>
-              </div>
-              <p id="calc-vol-nota" class="vol-nota"></p>
-              <p id="calc-vol-choque" class="vol-choque hidden"></p>
-            </div>
-          </div>
 
         </div>
 
@@ -570,8 +553,6 @@
             <div class="backtest-bar-track">
               <div id="backtest-bcv-bar" class="backtest-bar-fill"></div>
             </div>
-            <p id="backtest-bcv-estable" class="backtest-nota"></p>
-            <p id="backtest-bcv-nota" class="backtest-nota"></p>
           </div>
 
           <div class="backtest-row">
@@ -582,7 +563,6 @@
             <div class="backtest-bar-track">
               <div id="backtest-usdt-bar" class="backtest-bar-fill"></div>
             </div>
-            <p id="backtest-usdt-nota" class="backtest-nota"></p>
           </div>
         </div>
 

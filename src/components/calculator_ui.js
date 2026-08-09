@@ -32,9 +32,19 @@ export function initCalculadora() {
     });
   });
 
+  // Formateo automático del monto con puntos (ej: 1.000.000)
+  inputAmount.addEventListener('input', () => {
+    // Guardar posición del cursor
+    let raw = inputAmount.value.replace(/\./g, '').replace(/[^0-9]/g, '');
+    if (raw === '') { inputAmount.value = ''; return; }
+    const formatted = parseInt(raw, 10).toLocaleString('de-DE'); // usa '.' como separador de miles
+    inputAmount.value = formatted;
+  });
+
   // Botón principal
   btnCalcular.addEventListener('click', async () => {
-    const monto = parseFloat(inputAmount.value);
+    const rawValue = inputAmount.value.replace(/\./g, '').trim();
+    const monto = parseFloat(rawValue);
     const dias  = parseInt(inputDays.value);
     const precioCompra = parseFloat(document.getElementById('calc-precio-compra')?.value) || null;
     const precioVenta  = parseFloat(document.getElementById('calc-precio-venta')?.value) || null;
