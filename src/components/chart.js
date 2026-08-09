@@ -25,14 +25,15 @@ export function initChart(canvasId) {
 
   const ctx = canvas.getContext('2d');
 
-  // Crear gradientes para las áreas bajo las líneas
+  // Gradiente naranja para USD BCV
   const gradientUSD = ctx.createLinearGradient(0, 0, 0, 400);
-  gradientUSD.addColorStop(0, 'rgba(74, 125, 255, 0.3)');
-  gradientUSD.addColorStop(1, 'rgba(74, 125, 255, 0.0)');
+  gradientUSD.addColorStop(0, 'rgba(255, 143, 0, 0.28)');
+  gradientUSD.addColorStop(1, 'rgba(255, 143, 0, 0.0)');
 
+  // Gradiente azul para USDT
   const gradientUSDT = ctx.createLinearGradient(0, 0, 0, 400);
-  gradientUSDT.addColorStop(0, 'rgba(6, 182, 212, 0.3)');
-  gradientUSDT.addColorStop(1, 'rgba(6, 182, 212, 0.0)');
+  gradientUSDT.addColorStop(0, 'rgba(41, 121, 255, 0.22)');
+  gradientUSDT.addColorStop(1, 'rgba(41, 121, 255, 0.0)');
 
   _chartInstance = new Chart(ctx, {
     type: 'line',
@@ -42,45 +43,45 @@ export function initChart(canvasId) {
         {
           label: 'USD BCV (Bs.)',
           data: [],
-          borderColor: '#4a7dff',
+          borderColor: '#FF8F00',
           backgroundColor: gradientUSD,
           borderWidth: 2.5,
-          tension: 0.4,           // Curvas suaves
+          tension: 0.4,
           fill: true,
           pointRadius: 3,
           pointHoverRadius: 6,
-          pointBackgroundColor: '#4a7dff',
-          pointBorderColor: '#0a0a1a',
+          pointBackgroundColor: '#FF8F00',
+          pointBorderColor: '#1E1E1E',
           pointBorderWidth: 2,
           order: 2,
         },
         {
           label: 'USDT Promedio (Bs.)',
           data: [],
-          borderColor: '#06b6d4',
+          borderColor: '#2979FF',
           backgroundColor: gradientUSDT,
           borderWidth: 2.5,
           tension: 0.4,
           fill: true,
           pointRadius: 3,
           pointHoverRadius: 6,
-          pointBackgroundColor: '#06b6d4',
-          pointBorderColor: '#0a0a1a',
+          pointBackgroundColor: '#2979FF',
+          pointBorderColor: '#1E1E1E',
           pointBorderWidth: 2,
           order: 1,
         },
         {
           label: 'Brecha USD/USDT (%)',
           data: [],
-          borderColor: '#f59e0b',
-          backgroundColor: 'rgba(245, 158, 11, 0.1)',
+          borderColor: '#FFD600',
+          backgroundColor: 'rgba(255, 214, 0, 0.08)',
           borderWidth: 2,
           tension: 0.4,
           fill: false,
           pointRadius: 2,
           pointHoverRadius: 5,
-          pointBackgroundColor: '#f59e0b',
-          pointBorderColor: '#0a0a1a',
+          pointBackgroundColor: '#FFD600',
+          pointBorderColor: '#1E1E1E',
           pointBorderWidth: 2,
           borderDash: [5, 5],     // Línea punteada para la brecha
           yAxisID: 'y1',          // Eje Y secundario
@@ -100,7 +101,7 @@ export function initChart(canvasId) {
           display: true,
           position: 'top',
           labels: {
-            color: '#8888bb',
+            color: '#A0A0A0',
             font: {
               family: 'Inter',
               size: 12,
@@ -112,10 +113,10 @@ export function initChart(canvasId) {
           },
         },
         tooltip: {
-          backgroundColor: 'rgba(10, 10, 26, 0.95)',
-          titleColor: '#e8e8ff',
-          bodyColor: '#8888bb',
-          borderColor: 'rgba(255, 255, 255, 0.1)',
+          backgroundColor: 'rgba(20, 20, 20, 0.97)',
+          titleColor: '#E0E0E0',
+          bodyColor: '#A0A0A0',
+          borderColor: '#2C2C2C',
           borderWidth: 1,
           cornerRadius: 12,
           padding: 14,
@@ -150,7 +151,7 @@ export function initChart(canvasId) {
             drawBorder: false,
           },
           ticks: {
-            color: '#8888bb',
+            color: '#A0A0A0',
             font: {
               family: 'Inter',
               size: 11,
@@ -191,7 +192,7 @@ export function initChart(canvasId) {
             drawOnChartArea: false, // No superponer líneas con el eje primario
           },
           ticks: {
-            color: '#f59e0b',
+            color: '#FFD600',
             font: {
               family: 'Inter',
               size: 11,
@@ -203,7 +204,7 @@ export function initChart(canvasId) {
           title: {
             display: true,
             text: 'Brecha (%)',
-            color: '#f59e0b',
+            color: '#FFD600',
             font: {
               family: 'Inter',
               size: 12,

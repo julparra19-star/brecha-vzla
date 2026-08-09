@@ -1,37 +1,52 @@
 /* ============================================================
-   main.css — Estilos Premium para BrechaVzla
-   Dashboard con glassmorphism, gradientes y micro-animaciones
+   main.css — Modo Oscuro Profesional con Acentos Naranja
+   BrechaVzla · Agosto 2026
    ============================================================ */
 
-/* === VARIABLES CSS === */
+/* === VARIABLES CSS — DARK MODE PROFESIONAL === */
 :root {
-  --bg-primary: #0a0a1a;
-  --bg-secondary: #12122a;
-  --bg-card: rgba(25, 25, 60, 0.6);
-  --text-primary: #e8e8ff;
-  --text-secondary: #8888bb;
-  --accent-blue: #4a7dff;
-  --accent-purple: #7c3aed;
-  --accent-cyan: #06b6d4;
-  --accent-green: #10b981;
-  --accent-red: #ef4444;
-  --accent-yellow: #f59e0b;
-  --gradient-primary: linear-gradient(135deg, #4a7dff, #7c3aed);
-  --gradient-hero: linear-gradient(135deg, #0a0a1a 0%, #1a1a3e 50%, #0a0a1a 100%);
-  --glass-bg: rgba(255, 255, 255, 0.05);
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --shadow-glow: 0 0 30px rgba(74, 125, 255, 0.15);
+  /* Fondos */
+  --bg-primary:   #121212;
+  --bg-secondary: #1A1A1A;
+  --bg-card:      #1E1E1E;
+  --bg-elevated:  #252525;
+
+  /* Textos */
+  --text-primary:   #E0E0E0;
+  --text-secondary: #A0A0A0;
+
+  /* Acento principal — Naranja Vibrante */
+  --accent-orange:  #FF8F00;
+  --accent-orange2: #FFA726;
+  --accent-blue:    #2979FF;
+  --accent-green:   #00C853;
+  --accent-red:     #FF3D00;
+  --accent-yellow:  #FFD600;
+  --accent-cyan:    #00BCD4;
+  --accent-purple:  #9C27B0;
+
+  /* Alias para compatibilidad con código existente */
+  --accent-blue:   #2979FF;
+
+  /* Gradientes */
+  --gradient-primary: linear-gradient(135deg, #FF8F00, #FFA726);
+  --gradient-hero:    linear-gradient(135deg, #121212 0%, #1A1A1A 50%, #0D0D0D 100%);
+
+  /* Glassmorphism oscuro */
+  --glass-bg:     rgba(255, 255, 255, 0.04);
+  --glass-border: #2C2C2C;
+  --shadow-glow:  0 0 30px rgba(255, 143, 0, 0.12);
 
   /* Tipografía */
   --font-heading: 'Outfit', sans-serif;
-  --font-body: 'Inter', sans-serif;
+  --font-body:    'Inter', sans-serif;
 
   /* Espaciado */
-  --space-xs: 0.25rem;
-  --space-sm: 0.5rem;
-  --space-md: 1rem;
-  --space-lg: 1.5rem;
-  --space-xl: 2rem;
+  --space-xs:  0.25rem;
+  --space-sm:  0.5rem;
+  --space-md:  1rem;
+  --space-lg:  1.5rem;
+  --space-xl:  2rem;
   --space-2xl: 3rem;
 
   /* Bordes */
@@ -75,12 +90,12 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(74, 125, 255, 0.3);
+  background: rgba(255, 143, 0, 0.35);
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(74, 125, 255, 0.5);
+  background: rgba(255, 143, 0, 0.55);
 }
 
 /* === FONDO ANIMADO === */
@@ -104,17 +119,17 @@ body {
   height: 200%;
   background: radial-gradient(
     ellipse at 20% 50%,
-    rgba(74, 125, 255, 0.08) 0%,
+    rgba(255, 143, 0, 0.05) 0%,
     transparent 50%
   ),
   radial-gradient(
     ellipse at 80% 20%,
-    rgba(124, 58, 237, 0.06) 0%,
+    rgba(255, 167, 38, 0.04) 0%,
     transparent 50%
   ),
   radial-gradient(
     ellipse at 50% 80%,
-    rgba(6, 182, 212, 0.05) 0%,
+    rgba(41, 121, 255, 0.03) 0%,
     transparent 50%
   );
   animation: bgDrift 20s ease-in-out infinite;
@@ -158,8 +173,8 @@ body {
   height: 56px;
   border-radius: 50%;
   border: 3px solid rgba(255, 255, 255, 0.08);
-  border-top-color: var(--accent-blue);
-  border-right-color: var(--accent-purple);
+  border-top-color: var(--accent-orange);
+  border-right-color: var(--accent-orange2);
   animation: spin 1s linear infinite;
 }
 
@@ -211,10 +226,10 @@ body {
   top: 0;
   z-index: 100;
   padding: var(--space-md) var(--space-lg);
-  background: rgba(10, 10, 26, 0.85);
+  background: rgba(10, 10, 10, 0.92);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--glass-border);
+  border-bottom: 1px solid #2C2C2C;
 }
 
 .header-inner {
@@ -239,7 +254,7 @@ body {
 
 .logo-icon {
   font-size: 1.6rem;
-  filter: drop-shadow(0 0 8px rgba(74, 125, 255, 0.4));
+  filter: drop-shadow(0 0 8px rgba(255, 143, 0, 0.5));
 }
 
 .brand-name {
@@ -251,10 +266,8 @@ body {
 }
 
 .brand-accent {
-  background: var(--gradient-primary);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--accent-orange);
+  -webkit-text-fill-color: var(--accent-orange);
 }
 
 /* Indicador EN VIVO */
@@ -346,7 +359,7 @@ body {
 .update-time {
   font-size: 0.75rem;
   font-weight: 600;
-  color: var(--accent-cyan);
+  color: var(--accent-orange);
   font-variant-numeric: tabular-nums;
 }
 
@@ -439,7 +452,7 @@ body {
   background: linear-gradient(
     135deg,
     transparent 30%,
-    rgba(74, 125, 255, 0.2) 50%,
+    rgba(255, 143, 0, 0.18) 50%,
     transparent 70%
   );
   -webkit-mask:
@@ -457,7 +470,7 @@ body {
 
 .metric-card:hover {
   transform: translateY(-3px);
-  border-color: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 143, 0, 0.22);
   box-shadow: var(--shadow-glow);
 }
 
@@ -470,7 +483,7 @@ body {
   height: 200%;
   background: radial-gradient(
     circle at center,
-    rgba(74, 125, 255, 0.06) 0%,
+    rgba(255, 143, 0, 0.05) 0%,
     transparent 60%
   );
   opacity: 0;
@@ -482,16 +495,16 @@ body {
   opacity: 1;
 }
 
-/* Tarjeta destacada (USDT Promedio) */
+/* Tarjeta destacada (Promedio Móvil — brecha central) */
 .metric-card.featured {
-  border-color: rgba(6, 182, 212, 0.25);
-  background: rgba(25, 30, 70, 0.7);
+  border-color: rgba(255, 143, 0, 0.3);
+  background: radial-gradient(ellipse at 50% 60%, rgba(255, 143, 0, 0.10) 0%, #1E1E1E 70%);
 }
 
 .metric-card.featured .card-glow {
   background: radial-gradient(
     circle at center,
-    rgba(6, 182, 212, 0.08) 0%,
+    rgba(255, 143, 0, 0.10) 0%,
     transparent 60%
   );
 }
@@ -502,8 +515,8 @@ body {
 }
 
 @keyframes cardFlash {
-  0% { box-shadow: 0 0 0 rgba(74, 125, 255, 0); }
-  30% { box-shadow: 0 0 25px rgba(74, 125, 255, 0.2); }
+  0%   { box-shadow: 0 0 0 rgba(255, 143, 0, 0); }
+  30%  { box-shadow: 0 0 25px rgba(255, 143, 0, 0.25); }
   100% { box-shadow: none; }
 }
 
@@ -525,21 +538,21 @@ body {
 }
 
 .badge-blue {
-  background: rgba(74, 125, 255, 0.15);
+  background: rgba(41, 121, 255, 0.15);
   color: var(--accent-blue);
-  border: 1px solid rgba(74, 125, 255, 0.25);
+  border: 1px solid rgba(41, 121, 255, 0.25);
 }
 
 .badge-purple {
-  background: rgba(124, 58, 237, 0.15);
+  background: rgba(156, 39, 176, 0.15);
   color: var(--accent-purple);
-  border: 1px solid rgba(124, 58, 237, 0.25);
+  border: 1px solid rgba(156, 39, 176, 0.25);
 }
 
 .badge-cyan {
-  background: rgba(6, 182, 212, 0.15);
+  background: rgba(0, 188, 212, 0.15);
   color: var(--accent-cyan);
-  border: 1px solid rgba(6, 182, 212, 0.25);
+  border: 1px solid rgba(0, 188, 212, 0.25);
 }
 
 .badge-green {
@@ -689,7 +702,7 @@ body {
   border-color: rgba(239, 68, 68, 0.2);
 }
 
-/* === TARJETA GLASSMORPHISM GENÉRICA === */
+/* Tarjeta glassmorphism genérica — dark */
 .glass-card {
   border-radius: var(--radius-lg);
   background: var(--bg-card);
@@ -739,10 +752,10 @@ body {
   font-family: var(--font-heading);
   font-weight: 600;
   font-size: 0.75rem;
-  color: var(--text-secondary);
+  color: var(--accent-orange);
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  background: rgba(18, 18, 42, 0.95);
+  background: #181818;
   border-bottom: 1px solid var(--glass-border);
   white-space: nowrap;
 }
@@ -752,11 +765,11 @@ body {
 }
 
 .history-table tbody tr:nth-child(even) {
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(255, 255, 255, 0.025);
 }
 
 .history-table tbody tr:hover {
-  background: rgba(74, 125, 255, 0.06);
+  background: rgba(255, 143, 0, 0.06);
 }
 
 .history-table tbody td {
@@ -806,10 +819,7 @@ body {
 .footer-brand {
   font-family: var(--font-heading);
   font-weight: 700;
-  background: var(--gradient-primary);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--accent-orange);
 }
 
 .footer-credits {
@@ -925,7 +935,7 @@ body {
 }
 
 .install-btn:hover {
-  box-shadow: 0 0 20px rgba(74, 125, 255, 0.3);
+  box-shadow: 0 0 20px rgba(255, 143, 0, 0.3);
 }
 
 /* Animación para números al actualizarse */
@@ -968,7 +978,7 @@ body {
    ============================================================= */
 
 .calc-section {
-  background: linear-gradient(180deg, transparent 0%, rgba(74, 125, 255, 0.03) 50%, transparent 100%);
+  background: linear-gradient(180deg, transparent 0%, rgba(255, 143, 0, 0.025) 50%, transparent 100%);
   border-top: 1px solid var(--glass-border);
   padding: var(--space-2xl) var(--space-lg);
 }
@@ -1022,22 +1032,22 @@ body {
   align-items: center;
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.04);
+  background: #2C2C2C;
   overflow: hidden;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .calc-input-wrapper:focus-within {
-  border-color: rgba(74, 125, 255, 0.5);
-  box-shadow: 0 0 0 3px rgba(74, 125, 255, 0.1);
+  border-color: rgba(255, 143, 0, 0.5);
+  box-shadow: 0 0 0 3px rgba(255, 143, 0, 0.10);
 }
 
 .calc-input-prefix {
   padding: 0 var(--space-md);
   font-size: 0.85rem;
   font-weight: 600;
-  color: var(--accent-blue);
-  background: rgba(74, 125, 255, 0.08);
+  color: var(--accent-orange);
+  background: rgba(255, 143, 0, 0.08);
   height: 100%;
   display: flex;
   align-items: center;
@@ -1085,19 +1095,19 @@ body {
 
 .calc-day-btn:hover,
 .calc-day-btn.active {
-  background: rgba(74, 125, 255, 0.15);
-  border-color: rgba(74, 125, 255, 0.4);
-  color: var(--accent-blue);
+  background: rgba(255, 143, 0, 0.15);
+  border-color: rgba(255, 143, 0, 0.4);
+  color: var(--accent-orange);
 }
 
-/* Botón principal */
+/* Botón principal CALCULADORA — Naranja Vibrante */
 .calc-btn {
   width: 100%;
   padding: 1rem;
-  background: var(--gradient-primary);
+  background: var(--accent-orange);
   border: none;
   border-radius: var(--radius-md);
-  color: white;
+  color: #ffffff;
   font-size: 1rem;
   font-weight: 700;
   font-family: var(--font-heading);
@@ -1112,7 +1122,8 @@ body {
 
 .calc-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(74, 125, 255, 0.35);
+  background: var(--accent-orange2);
+  box-shadow: 0 8px 25px rgba(255, 143, 0, 0.35);
 }
 
 .calc-btn:active {
@@ -1151,7 +1162,7 @@ body {
 .veredicto-icon {
   font-size: 2.5rem;
   flex-shrink: 0;
-  filter: drop-shadow(0 0 12px rgba(74, 125, 255, 0.4));
+  filter: drop-shadow(0 0 12px rgba(255, 143, 0, 0.4));
 }
 
 .veredicto-texto {
@@ -1339,9 +1350,9 @@ body {
 }
 
 .filter-btn.active {
-  background: var(--gradient-primary);
-  color: white;
-  box-shadow: 0 2px 8px rgba(74, 125, 255, 0.3);
+  background: var(--accent-orange);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(255, 143, 0, 0.3);
 }
 
 /* Hint text en calculadora */
@@ -1464,11 +1475,31 @@ body {
 
 .vol-choque {
   font-size: 0.75rem;
-  color: #f59e0b;
+  color: #FFD600;
   margin: var(--space-xs) 0 0 0;
   line-height: 1.4;
   padding: 0.4rem 0.6rem;
-  background: rgba(245,158,11,0.08);
+  background: rgba(255,214,0,0.06);
   border-radius: var(--radius-sm);
-  border-left: 3px solid #f59e0b;
+  border-left: 3px solid #FFD600;
+}
+
+/* Botón primario genérico (exportar Excel, etc.) */
+.btn-primary {
+  background: var(--accent-orange);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  letter-spacing: 0.2px;
+}
+
+.btn-primary:hover {
+  background: var(--accent-orange2);
+  box-shadow: 0 6px 18px rgba(255, 143, 0, 0.3);
+  transform: translateY(-1px);
 }
