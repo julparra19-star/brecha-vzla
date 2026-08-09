@@ -3,39 +3,36 @@
    BrechaVzla · Agosto 2026
    ============================================================ */
 
-/* === VARIABLES CSS — DARK MODE PROFESIONAL === */
+/* === VARIABLES CSS — DARK MODE AZUL PROFUNDO === */
 :root {
-  /* Fondos */
-  --bg-primary:   #121212;
-  --bg-secondary: #1A1A1A;
-  --bg-card:      #1E1E1E;
-  --bg-elevated:  #252525;
+  /* Fondos — Azul Marino Oscuro */
+  --bg-primary:   #0A0F1E;
+  --bg-secondary: #0D1526;
+  --bg-card:      #111827;
+  --bg-elevated:  #1A2237;
 
   /* Textos */
-  --text-primary:   #E0E0E0;
-  --text-secondary: #A0A0A0;
+  --text-primary:   #E2E8F0;
+  --text-secondary: #94A3B8;
 
   /* Acento principal — Naranja Vibrante */
   --accent-orange:  #FF8F00;
   --accent-orange2: #FFA726;
-  --accent-blue:    #2979FF;
-  --accent-green:   #00C853;
-  --accent-red:     #FF3D00;
-  --accent-yellow:  #FFD600;
-  --accent-cyan:    #00BCD4;
-  --accent-purple:  #9C27B0;
-
-  /* Alias para compatibilidad con código existente */
-  --accent-blue:   #2979FF;
+  --accent-blue:    #3B82F6;
+  --accent-green:   #10B981;
+  --accent-red:     #EF4444;
+  --accent-yellow:  #F59E0B;
+  --accent-cyan:    #06B6D4;
+  --accent-purple:  #A855F7;
 
   /* Gradientes */
   --gradient-primary: linear-gradient(135deg, #FF8F00, #FFA726);
-  --gradient-hero:    linear-gradient(135deg, #121212 0%, #1A1A1A 50%, #0D0D0D 100%);
+  --gradient-hero:    linear-gradient(135deg, #0A0F1E 0%, #0D1526 50%, #060B17 100%);
 
-  /* Glassmorphism oscuro */
-  --glass-bg:     rgba(255, 255, 255, 0.04);
-  --glass-border: #2C2C2C;
-  --shadow-glow:  0 0 30px rgba(255, 143, 0, 0.12);
+  /* Glassmorphism azul oscuro */
+  --glass-bg:     rgba(59, 130, 246, 0.04);
+  --glass-border: rgba(59, 130, 246, 0.12);
+  --shadow-glow:  0 0 30px rgba(59, 130, 246, 0.10);
 
   /* Tipografía */
   --font-heading: 'Outfit', sans-serif;
@@ -90,12 +87,12 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 143, 0, 0.35);
+  background: rgba(59, 130, 246, 0.35);
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 143, 0, 0.55);
+  background: rgba(59, 130, 246, 0.55);
 }
 
 /* === FONDO ANIMADO === */
@@ -119,17 +116,17 @@ body {
   height: 200%;
   background: radial-gradient(
     ellipse at 20% 50%,
-    rgba(255, 143, 0, 0.05) 0%,
+    rgba(59, 130, 246, 0.07) 0%,
     transparent 50%
   ),
   radial-gradient(
     ellipse at 80% 20%,
-    rgba(255, 167, 38, 0.04) 0%,
+    rgba(99, 102, 241, 0.05) 0%,
     transparent 50%
   ),
   radial-gradient(
     ellipse at 50% 80%,
-    rgba(41, 121, 255, 0.03) 0%,
+    rgba(14, 165, 233, 0.04) 0%,
     transparent 50%
   );
   animation: bgDrift 20s ease-in-out infinite;
@@ -226,10 +223,10 @@ body {
   top: 0;
   z-index: 100;
   padding: var(--space-md) var(--space-lg);
-  background: rgba(10, 10, 10, 0.92);
+  background: rgba(10, 15, 30, 0.92);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid #2C2C2C;
+  border-bottom: 1px solid rgba(59, 130, 246, 0.15);
 }
 
 .header-inner {
@@ -497,14 +494,14 @@ body {
 
 /* Tarjeta destacada (Promedio Móvil — brecha central) */
 .metric-card.featured {
-  border-color: rgba(255, 143, 0, 0.3);
-  background: radial-gradient(ellipse at 50% 60%, rgba(255, 143, 0, 0.10) 0%, #1E1E1E 70%);
+  border-color: rgba(59, 130, 246, 0.3);
+  background: radial-gradient(ellipse at 50% 60%, rgba(59, 130, 246, 0.08) 0%, #111827 70%);
 }
 
 .metric-card.featured .card-glow {
   background: radial-gradient(
     circle at center,
-    rgba(255, 143, 0, 0.10) 0%,
+    rgba(59, 130, 246, 0.10) 0%,
     transparent 60%
   );
 }
@@ -756,7 +753,7 @@ body {
   color: var(--accent-orange);
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  background: #181818;
+  background: #0D1526;
   border-bottom: 1px solid var(--glass-border);
   white-space: nowrap;
 }
@@ -770,7 +767,7 @@ body {
 }
 
 .history-table tbody tr:hover {
-  background: rgba(255, 143, 0, 0.06);
+  background: rgba(59, 130, 246, 0.06);
 }
 
 .history-table tbody td {
@@ -1013,7 +1010,7 @@ body {
   align-items: center;
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-md);
-  background: #2C2C2C;
+  background: #1A2237;
   overflow: hidden;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
@@ -1522,7 +1519,7 @@ body {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(18, 18, 18, 0.4);
+  background: rgba(5, 10, 20, 0.6);
   backdrop-filter: blur(4px);
   z-index: 9998;
   opacity: 1;
