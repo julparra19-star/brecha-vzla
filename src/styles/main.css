@@ -1733,11 +1733,26 @@ body {
   opacity: 0.4;
 }
 
+.scorecard-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--glass-border);
+  margin-top: 0.5rem;
+}
+
 .scorecard-abs {
   font-size: 0.8rem;
   font-weight: 600;
   color: var(--text-secondary);
-  padding-top: 0.25rem;
-  border-top: 1px solid var(--glass-border);
-  margin-top: 0.25rem;
+}
+
+.scorecard-avg {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: var(--glass-bg);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
 }

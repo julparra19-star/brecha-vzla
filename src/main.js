@@ -738,5 +738,12 @@ function renderScorecardItem(id, oldVal, newVal, days, fmt) {
 
   elFrom.textContent = `${fmt(oldVal)} Bs.`;
   elTo.textContent   = `${fmt(newVal)} Bs.`;
-  elAbs.textContent  = `${sign}${fmt(diff)} Bs. en ${days} días`;
+
+  elAbs.textContent = `${sign}${fmt(diff)} Bs. en ${days} días`;
+
+  const elAvg = document.getElementById(`sc-${id}-avg`);
+  if (elAvg) {
+    const avg = diff / days;
+    elAvg.textContent = `${sign}${fmt(avg)} Bs/día`;
+  }
 }
