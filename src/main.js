@@ -647,8 +647,8 @@ function updateMarketHealth(history) {
 // ============================================================
 
 async function initScorecard() {
-  // Obtener al menos 30 días de historial para el scorecard
-  const history = await fetchHistory('month');
+  // Obtener al menos 30 días de historial para el scorecard (límite 10000 para cubrir lecturas de cada 5 min)
+  const history = await fetchHistory('month', 10000);
   window._scorecardHistory = history || [];
 
   const btns = document.querySelectorAll('#scorecard-filter-bar .filter-btn');

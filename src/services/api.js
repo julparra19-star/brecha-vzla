@@ -73,8 +73,12 @@ export async function fetchRates() {
  * Endpoint: GET /api/history
  * @returns {Promise<Array|null>} Array de registros históricos
  */
-export async function fetchHistory(filter = 'last10') {
-  const response = await fetchEndpoint(`/api/history?filter=${filter}`);
+export async function fetchHistory(filter = 'last10', limit = null) {
+  let url = `/api/history?filter=${filter}`;
+  if (limit) {
+    url += `&limit=${limit}`;
+  }
+  const response = await fetchEndpoint(url);
   return response?.data || response || [];
 }
 
