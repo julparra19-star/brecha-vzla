@@ -669,10 +669,9 @@ async function initScorecard() {
 function updateScorecard(history, days) {
   if (!history || history.length < 2) return;
 
-  const cutoffDate = new Date();
-  cutoffDate.setDate(cutoffDate.getDate() - days);
-  cutoffDate.setHours(0, 0, 0, 0); // Inicio del día para no perder los registros de medianoche
-  const cutoff = cutoffDate.getTime();
+  const now = new Date();
+  // Usar UTC para alinear perfectamente con los datos simulados que están en hora UTC (Londres)
+  const cutoff = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate() - days);
 
   // Registros dentro del período (ordenados más nuevo → más antiguo)
   const inRange = history.filter(r => {
