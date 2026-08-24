@@ -15,7 +15,7 @@ const cron = require('node-cron');
 const { fetchBCVRates } = require('./services/bcv');
 const { fetchBinanceP2P } = require('./services/binance');
 const { calculateGaps } = require('./services/calculator');
-const { saveRates, getHistory, isConfigured } = require('./services/supabase');
+const { saveRates, getHistory, getAnchorRecord, isConfigured } = require('./services/supabase');
 const { calcularProyeccion } = require('./services/calculator_projection');
 
 // Configuración del servidor
@@ -151,6 +151,29 @@ app.get('/api/history', async (req, res) => {
       error: 'Error interno del servidor',
       message: error.message,
     });
+  }
+});
+
+/**
+ * GET /api/history/anchor
+ * Retorna el registro más antiguo dentro de una ventana de N días.
+ * Usado por el scorecard para comparar tasa actual vs tasa de hace N días.
+ * Query params:
+ *   days: número de días hacia atrás (default 7)
+ */
+app.get('/api/history/anchor', async (req, res) => {
+  try {
+    const days = parseInt(req.query.days) || 7;
+    const cutoff = new Date();
+    cutoff.setUTCDate(cutoff.getUTCDate() - days);
+    cutoff.setUTCHours(0, 0, 0, 0);
+
+    const anchor = await getAnchorRecord(cutoff.toISOString());
+
+    res.json({ success: true, data: anchor, days, cutoff: cutoff.toISOString() });
+  } catch (error) {
+    console.error('[API /history/anchor] Error:', error.message);
+    res.status(500).json({ error: 'Error interno del servidor', message: error.message });
   }
 });
 

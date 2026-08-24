@@ -647,9 +647,18 @@ function updateMarketHealth(history) {
 // ============================================================
 
 async function initScorecard() {
-  // Obtener al menos 30 días de historial para el scorecard (límite 10000 para cubrir lecturas de cada 5 min)
-  const history = await fetchHistory('month', 10000);
-  window._scorecardHistory = history || [];
+  // Pre-cargar los registros ancla para cada período (evita el límite de 1000 registros de Supabase)
+  const [anchor7, anchor15, anchor30, newestArr] = await Promise.all([
+    fetch('/api/history/anchor?days=7').then(r => r.json()).then(d => d.data).catch(() => null),
+    fetch('/api/history/anchor?days=15').then(r => r.json()).then(d => d.data).catch(() => null),
+    fetch('/api/history/anchor?days=30').then(r => r.json()).then(d => d.data).catch(() => null),
+    fetchHistory('last10', 1),
+  ]);
+
+  const newest = Array.isArray(newestArr) ? newestArr[0] : newestArr;
+
+  window._scorecardAnchors = { 7: anchor7, 15: anchor15, 30: anchor30 };
+  window._scorecardNewest  = newest;
 
   const btns = document.querySelectorAll('#scorecard-filter-bar .filter-btn');
   btns.forEach(btn => {
@@ -657,13 +666,35 @@ async function initScorecard() {
       btns.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       const period = parseInt(btn.dataset.period);
-      updateScorecard(window._scorecardHistory, period);
+      renderScorecardWithAnchors(period);
     });
   });
 
   // Inicializar con el período activo (por defecto 7 días)
   const activePeriod = parseInt(document.querySelector('#scorecard-filter-bar .filter-btn.active')?.dataset.period || '7');
-  updateScorecard(window._scorecardHistory, activePeriod);
+  renderScorecardWithAnchors(activePeriod);
+}
+
+function renderScorecardWithAnchors(days) {
+  const oldest = window._scorecardAnchors?.[days];
+  const newest = window._scorecardNewest;
+  if (!oldest || !newest) return;
+
+  const val = (rec, key) => {
+    if (rec[key]) return parseFloat(rec[key]);
+    if (rec.bcv) {
+      if (key === 'usd_bcv') return parseFloat(rec.bcv.usd) || 0;
+      if (key === 'eur_bcv') return parseFloat(rec.bcv.eur) || 0;
+    }
+    if (rec.binance && key === 'usdt_promedio') return parseFloat(rec.binance.promedio) || 0;
+    return 0;
+  };
+
+  const fmt = n => n.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  renderScorecardItem('usd',  val(oldest, 'usd_bcv'),      val(newest, 'usd_bcv'),      days, fmt);
+  renderScorecardItem('eur',  val(oldest, 'eur_bcv'),      val(newest, 'eur_bcv'),      days, fmt);
+  renderScorecardItem('usdt', val(oldest, 'usdt_promedio'), val(newest, 'usdt_promedio'), days, fmt);
 }
 
 function updateScorecard(history, days) {

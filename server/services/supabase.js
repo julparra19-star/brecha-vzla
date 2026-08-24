@@ -118,8 +118,38 @@ async function getHistory(limit = 500, filter = 'last10') {
   }
 }
 
+/**
+ * Obtiene el registro más antiguo desde una fecha de corte.
+ * Usado por el endpoint /api/history/anchor para el scorecard.
+ * @param {string} cutoffISO - Fecha de corte en formato ISO
+ * @returns {Promise<Object|null>} Registro más antiguo o null
+ */
+async function getAnchorRecord(cutoffISO) {
+  if (!isConfigured()) {
+    console.warn('[Supabase] ⚠️  Consulta omitida: Supabase no configurado');
+    return null;
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from(TABLE_NAME)
+      .select('*')
+      .gte('created_at', cutoffISO)
+      .order('created_at', { ascending: true })
+      .limit(1)
+      .single();
+
+    if (error) throw error;
+    return data || null;
+  } catch (error) {
+    console.error('[Supabase] ❌ Error al obtener anchor:', error.message);
+    return null;
+  }
+}
+
 module.exports = {
   saveRates,
   getHistory,
+  getAnchorRecord,
   isConfigured,
 };
