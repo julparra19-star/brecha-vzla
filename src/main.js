@@ -864,13 +864,17 @@ async function initComparador() {
     resultado?.classList.remove('hidden');
     winner?.classList.remove('winner-usdt', 'winner-bcv', 'winner-igual');
 
+    const costoBCVenUSDP2P  = costoBCV  / rateUSDT;  // lo que cuesta la opción BCV en USDT reales
+    const costoUSDTenUSDBCV = costoUSDT / rateBCV;   // lo que cuesta la opción USDT en USD al BCV
+    const diffUSD = Math.abs(costoBCVenUSDP2P - precUSDT); // diferencia en dólares
+
     if (Math.abs(costoBCV - costoUSDT) < 1) {
       // Prácticamente igual
       winner.textContent = '🟡 Ambas opciones son prácticamente iguales';
       winner.classList.add('winner-igual');
       detail.innerHTML = `
-        <b>BCV:</b> ${fmt(precBCV)} USD × ${fmt(rateBCV)} Bs = <b>${fmt(costoBCV)} Bs</b><br>
-        <b>P2P:</b> ${fmt(precUSDT)} USDT × ${fmt(rateUSDT)} Bs = <b>${fmt(costoUSDT)} Bs</b><br>
+        <b>BCV:</b> $${fmt(precBCV)} USD → <b>${fmt(costoBCV)} Bs</b> <span style="opacity:.6">(≈ $${fmt(costoBCVenUSDP2P)} al P2P)</span><br>
+        <b>P2P:</b> $${fmt(precUSDT)} USDT → <b>${fmt(costoUSDT)} Bs</b> <span style="opacity:.6">(≈ $${fmt(costoUSDTenUSDBCV)} al BCV)</span><br>
         La diferencia es de apenas <b>${fmt(diff)} Bs</b>, no hay ventaja real entre una y otra.
       `;
     } else if (costoUSDT < costoBCV) {
@@ -878,21 +882,21 @@ async function initComparador() {
       winner.textContent = '✅ Tu mejor opción es pagar en USDT (P2P)';
       winner.classList.add('winner-usdt');
       detail.innerHTML = `
-        <b>Opción BCV:</b> ${fmt(precBCV)} USD × ${fmt(rateBCV)} Bs = <b>${fmt(costoBCV)} Bs</b><br>
-        <b>Opción P2P:</b> ${fmt(precUSDT)} USDT × ${fmt(rateUSDT)} Bs = <b>${fmt(costoUSDT)} Bs</b><br><br>
-        Pagando en USDT te ahorras <b>${fmt(diff)} Bs (${pctAhorro.toFixed(2)}%)</b> respecto al precio BCV.
-        Aunque el precio en dólares parece más barato, el costo real en bolívares es menor por la diferencia de tasas.
+        <b>Opción BCV:</b> $${fmt(precBCV)} USD → <b>${fmt(costoBCV)} Bs</b> <span style="opacity:.6">(≈ $${fmt(costoBCVenUSDP2P)} al P2P)</span><br>
+        <b>Opción P2P:</b> $${fmt(precUSDT)} USDT → <b>${fmt(costoUSDT)} Bs</b> <span style="opacity:.6">(≈ $${fmt(costoUSDTenUSDBCV)} al BCV)</span><br><br>
+        Pagando en USDT te ahorras <b>${fmt(diff)} Bs · $${fmt(diffUSD)} (${pctAhorro.toFixed(2)}%)</b> vs la opción BCV.
       `;
     } else {
       // BCV es más barato
       winner.textContent = '✅ Tu mejor opción es pagar a tasa BCV';
       winner.classList.add('winner-bcv');
       detail.innerHTML = `
-        <b>Opción BCV:</b> ${fmt(precBCV)} USD × ${fmt(rateBCV)} Bs = <b>${fmt(costoBCV)} Bs</b><br>
-        <b>Opción P2P:</b> ${fmt(precUSDT)} USDT × ${fmt(rateUSDT)} Bs = <b>${fmt(costoUSDT)} Bs</b><br><br>
-        Pagando a tasa BCV te ahorras <b>${fmt(diff)} Bs (${pctAhorro.toFixed(2)}%)</b> respecto al precio P2P.
+        <b>Opción BCV:</b> $${fmt(precBCV)} USD → <b>${fmt(costoBCV)} Bs</b> <span style="opacity:.6">(≈ $${fmt(costoBCVenUSDP2P)} al P2P)</span><br>
+        <b>Opción P2P:</b> $${fmt(precUSDT)} USDT → <b>${fmt(costoUSDT)} Bs</b> <span style="opacity:.6">(≈ $${fmt(costoUSDTenUSDBCV)} al BCV)</span><br><br>
+        Pagando a tasa BCV te ahorras <b>${fmt(diff)} Bs · $${fmt(diffUSD)} (${pctAhorro.toFixed(2)}%)</b> vs la opción P2P.
       `;
     }
+
 
     // Scroll suave hacia el resultado
     resultado?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
