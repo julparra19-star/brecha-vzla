@@ -57,9 +57,10 @@ document.addEventListener('DOMContentLoaded', () => {
   initCalculadora();
   setupCalculatorModal();
 
-  // 4. Inicializar filtros de tiempo y scorecard
+  // 4. Inicializar filtros de tiempo, scorecard y comparador de tasas
   initFilterButtons();
   initScorecard();
+  initComparador();
 
   // 5. Cargar datos iniciales
   initDashboard();
@@ -777,4 +778,105 @@ function renderScorecardItem(id, oldVal, newVal, days, fmt) {
     const avg = diff / days;
     elAvg.textContent = `${sign}${fmt(avg)} Bs/día`;
   }
+}
+
+// ============================================================
+// COMPARADOR DE TASAS — BCV vs USDT P2P
+// ============================================================
+
+async function initComparador() {
+  // Cargar las tasas actuales al iniciar
+  let rateBCV = 0, rateUSDT = 0;
+
+  try {
+    const ratesData = await fetchRates();
+    rateBCV  = parseFloat(ratesData?.bcv?.usd)            || 0;
+    rateUSDT = parseFloat(ratesData?.binance?.promedio)   || 0;
+  } catch (e) {
+    console.warn('[Comparador] No se pudieron cargar las tasas:', e.message);
+  }
+
+  const fmt = n => n.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  // Mostrar tasas actuales en la UI
+  const elRateBCV  = document.getElementById('comp-rate-bcv');
+  const elRateUSDT = document.getElementById('comp-rate-usdt');
+  if (elRateBCV && rateBCV)   elRateBCV.textContent  = fmt(rateBCV);
+  if (elRateUSDT && rateUSDT) elRateUSDT.textContent = fmt(rateUSDT);
+
+  const inputBCV  = document.getElementById('comp-bcv-usd');
+  const inputUSDT = document.getElementById('comp-usdt-usd');
+  const equivBCV  = document.getElementById('comp-bcv-equiv');
+  const equivUSDT = document.getElementById('comp-usdt-equiv');
+  const btnCalc   = document.getElementById('comp-calcular-btn');
+  const resultado = document.getElementById('comp-resultado');
+  const winner    = document.getElementById('comp-winner-badge');
+  const detail    = document.getElementById('comp-result-detail');
+
+  // Actualizar equivalente en tiempo real mientras el usuario escribe
+  const updateEquiv = () => {
+    const vBCV  = parseFloat(inputBCV?.value)  || 0;
+    const vUSDT = parseFloat(inputUSDT?.value) || 0;
+    if (equivBCV)  equivBCV.textContent  = vBCV  && rateBCV  ? `≈ ${fmt(vBCV  * rateBCV)}  Bs.` : '— Bs.';
+    if (equivUSDT) equivUSDT.textContent = vUSDT && rateUSDT ? `≈ ${fmt(vUSDT * rateUSDT)} Bs.` : '— Bs.';
+  };
+
+  inputBCV?.addEventListener('input',  updateEquiv);
+  inputUSDT?.addEventListener('input', updateEquiv);
+
+  // Calcular y mostrar resultado
+  btnCalc?.addEventListener('click', () => {
+    const precBCV  = parseFloat(inputBCV?.value)  || 0;
+    const precUSDT = parseFloat(inputUSDT?.value) || 0;
+
+    if (!precBCV || !precUSDT) {
+      alert('Ingresa el precio en ambas opciones para comparar.');
+      return;
+    }
+    if (!rateBCV || !rateUSDT) {
+      alert('Las tasas no están disponibles. Intenta recargar la página.');
+      return;
+    }
+
+    const costoBCV  = precBCV  * rateBCV;   // precio BCV × tasa BCV
+    const costoUSDT = precUSDT * rateUSDT;  // precio USDT × tasa P2P
+    const diff      = Math.abs(costoBCV - costoUSDT);
+    const pctAhorro = (diff / Math.max(costoBCV, costoUSDT)) * 100;
+
+    resultado?.classList.remove('hidden');
+    winner?.classList.remove('winner-usdt', 'winner-bcv', 'winner-igual');
+
+    if (Math.abs(costoBCV - costoUSDT) < 1) {
+      // Prácticamente igual
+      winner.textContent = '🟡 Ambas opciones son prácticamente iguales';
+      winner.classList.add('winner-igual');
+      detail.innerHTML = `
+        <b>BCV:</b> ${fmt(precBCV)} USD × ${fmt(rateBCV)} Bs = <b>${fmt(costoBCV)} Bs</b><br>
+        <b>P2P:</b> ${fmt(precUSDT)} USDT × ${fmt(rateUSDT)} Bs = <b>${fmt(costoUSDT)} Bs</b><br>
+        La diferencia es de apenas <b>${fmt(diff)} Bs</b>, no hay ventaja real entre una y otra.
+      `;
+    } else if (costoUSDT < costoBCV) {
+      // USDT es más barato
+      winner.textContent = '✅ Tu mejor opción es pagar en USDT (P2P)';
+      winner.classList.add('winner-usdt');
+      detail.innerHTML = `
+        <b>Opción BCV:</b> ${fmt(precBCV)} USD × ${fmt(rateBCV)} Bs = <b>${fmt(costoBCV)} Bs</b><br>
+        <b>Opción P2P:</b> ${fmt(precUSDT)} USDT × ${fmt(rateUSDT)} Bs = <b>${fmt(costoUSDT)} Bs</b><br><br>
+        Pagando en USDT te ahorras <b>${fmt(diff)} Bs (${pctAhorro.toFixed(2)}%)</b> respecto al precio BCV.
+        Aunque el precio en dólares parece más barato, el costo real en bolívares es menor por la diferencia de tasas.
+      `;
+    } else {
+      // BCV es más barato
+      winner.textContent = '✅ Tu mejor opción es pagar a tasa BCV';
+      winner.classList.add('winner-bcv');
+      detail.innerHTML = `
+        <b>Opción BCV:</b> ${fmt(precBCV)} USD × ${fmt(rateBCV)} Bs = <b>${fmt(costoBCV)} Bs</b><br>
+        <b>Opción P2P:</b> ${fmt(precUSDT)} USDT × ${fmt(rateUSDT)} Bs = <b>${fmt(costoUSDT)} Bs</b><br><br>
+        Pagando a tasa BCV te ahorras <b>${fmt(diff)} Bs (${pctAhorro.toFixed(2)}%)</b> respecto al precio P2P.
+      `;
+    }
+
+    // Scroll suave hacia el resultado
+    resultado?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  });
 }

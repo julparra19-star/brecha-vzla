@@ -278,6 +278,66 @@
       </div>
     </section>
 
+    <!-- === SECCIÓN COMPARADOR DE TASAS === -->
+    <section class="section comparador-section">
+      <div class="section-header-row">
+        <h2 class="section-title">
+          <span class="section-icon">⚖️</span>
+          Comparador de Tasas
+        </h2>
+      </div>
+
+      <div class="comparador-card glass-card">
+        <p class="comparador-desc">Ingresa el precio de un producto en dólares según cada modalidad de pago y te decimos cuál te conviene más.</p>
+
+        <div class="comparador-inputs">
+
+          <!-- Precio en BCV -->
+          <div class="comparador-field">
+            <label class="comparador-label">
+              <span class="badge-label badge-blue">BCV</span>
+              Precio en USD (tasa BCV)
+            </label>
+            <div class="comparador-input-wrap">
+              <span class="comparador-prefix">$</span>
+              <input type="number" id="comp-bcv-usd" class="comparador-input" placeholder="Ej: 400" min="0" step="0.01" />
+            </div>
+            <span class="comparador-equiv" id="comp-bcv-equiv">— Bs.</span>
+          </div>
+
+          <div class="comparador-vs">VS</div>
+
+          <!-- Precio en USDT -->
+          <div class="comparador-field">
+            <label class="comparador-label">
+              <span class="badge-label badge-green">P2P</span>
+              Precio en USDT (Binance P2P)
+            </label>
+            <div class="comparador-input-wrap">
+              <span class="comparador-prefix">$</span>
+              <input type="number" id="comp-usdt-usd" class="comparador-input" placeholder="Ej: 345" min="0" step="0.01" />
+            </div>
+            <span class="comparador-equiv" id="comp-usdt-equiv">— Bs.</span>
+          </div>
+
+        </div>
+
+        <!-- Tasas en uso -->
+        <div class="comparador-rates-row">
+          <span class="comp-rate-item">🏦 BCV: <strong id="comp-rate-bcv">—</strong> Bs/USD</span>
+          <span class="comp-rate-item">💱 P2P: <strong id="comp-rate-usdt">—</strong> Bs/USDT</span>
+        </div>
+
+        <!-- Resultado -->
+        <div class="comparador-resultado hidden" id="comp-resultado">
+          <div class="comp-result-winner" id="comp-winner-badge"></div>
+          <div class="comp-result-detail" id="comp-result-detail"></div>
+        </div>
+
+        <button class="comp-btn" id="comp-calcular-btn">Comparar ahora</button>
+      </div>
+    </section>
+
     <!-- === SECCIÓN SCORECARD VARIACIÓN ACUMULADA === -->
     <section class="section scorecard-section">
       <div class="section-header-row">

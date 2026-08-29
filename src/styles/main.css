@@ -1743,6 +1743,201 @@ body {
 }
 
 .scorecard-abs {
+  display: flex;
+  flex-direction: column;
+}
+
+.calc-overlay.hidden .calc-sidebar {
+  transform: translateX(100%);
+}
+
+.calc-close-btn {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 2rem;
+  cursor: pointer;
+  z-index: 10;
+  transition: color 0.2s;
+}
+
+.calc-close-btn:hover {
+  color: var(--text-primary);
+}
+
+.calc-scroll-area {
+  overflow-y: auto;
+  height: 100%;
+  padding: 2rem 1rem;
+}
+
+/* =========================================================
+   BOTÓN FLOTANTE (FAB)
+   ========================================================= */
+.fab-calculator {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: linear-gradient(135deg, var(--cta-orange), #ff6d00);
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  padding: 12px 24px;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  box-shadow: 0 10px 25px rgba(255, 143, 0, 0.4);
+  z-index: 9990;
+  transition: all 0.3s ease;
+  animation: pulse-fab 2s infinite;
+}
+
+.fab-calculator:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 15px 35px rgba(255, 143, 0, 0.6);
+  animation: none;
+}
+
+@keyframes pulse-fab {
+  0% { box-shadow: 0 0 0 0 rgba(255, 143, 0, 0.7); }
+  70% { box-shadow: 0 0 0 15px rgba(255, 143, 0, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 143, 0, 0); }
+}
+
+@media (max-width: 768px) {
+  .fab-calculator {
+    bottom: 20px;
+    right: 20px;
+    padding: 16px;
+    border-radius: 50%;
+  }
+  .fab-calculator .fab-text {
+    display: none;
+  }
+  .fab-calculator .fab-icon {
+    font-size: 1.5rem;
+  }
+}
+
+/* =========================================================
+   SCORECARD — VARIACIÓN ACUMULADA
+   ========================================================= */
+.scorecard-section .section-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: var(--space-lg);
+}
+
+.scorecard-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 640px) {
+  .scorecard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.scorecard-card {
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.scorecard-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-glow);
+}
+
+.scorecard-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.scorecard-badge {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  text-transform: uppercase;
+}
+
+.scorecard-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.scorecard-value-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.scorecard-pct {
+  font-family: var(--font-heading);
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -1px;
+  font-variant-numeric: tabular-nums;
+  transition: color 0.4s ease;
+}
+
+.scorecard-arrow {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.scorecard-pct.up   { color: #EF4444; }
+.scorecard-pct.down { color: #10B981; }
+.scorecard-pct.flat { color: var(--text-secondary); }
+
+.scorecard-arrow.up   { color: #EF4444; }
+.scorecard-arrow.down { color: #10B981; }
+.scorecard-arrow.flat { color: var(--text-secondary); }
+
+.scorecard-detail {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  flex-wrap: wrap;
+}
+
+.scorecard-sep {
+  opacity: 0.4;
+}
+
+.scorecard-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--glass-border);
+  margin-top: 0.5rem;
+}
+
+.scorecard-abs {
   font-size: 0.8rem;
   font-weight: 600;
   color: var(--text-secondary);
@@ -1755,4 +1950,209 @@ body {
   background: var(--glass-bg);
   padding: 0.2rem 0.5rem;
   border-radius: 4px;
+}
+
+/* ============================================================
+   COMPARADOR DE TASAS
+   ============================================================ */
+
+.comparador-section {
+  padding: var(--space-lg) var(--space-md);
+}
+
+.comparador-card {
+  padding: 1.5rem;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.comparador-desc {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.comparador-inputs {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 1rem;
+}
+
+.comparador-vs {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  background: var(--bg-elevated);
+  border: 1px solid var(--glass-border);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  letter-spacing: 0.05em;
+}
+
+.comparador-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.comparador-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.badge-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+}
+
+.badge-label.badge-blue  { background: rgba(59,130,246,0.2); color: #60A5FA; }
+.badge-label.badge-green { background: rgba(16,185,129,0.2); color: #34D399; }
+
+.comparador-input-wrap {
+  display: flex;
+  align-items: center;
+  background: var(--bg-elevated);
+  border: 1px solid var(--glass-border);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.comparador-input-wrap:focus-within {
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 2px rgba(59,130,246,0.15);
+}
+
+.comparador-prefix {
+  padding: 0.65rem 0.75rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: rgba(255,255,255,0.03);
+  border-right: 1px solid var(--glass-border);
+}
+
+.comparador-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 0.65rem 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-family: var(--font-heading);
+  width: 100%;
+}
+
+.comparador-input::placeholder { color: var(--text-secondary); font-weight: 400; }
+
+.comparador-equiv {
+  font-size: 0.78rem;
+  color: var(--accent-blue);
+  font-weight: 500;
+  min-height: 1.1em;
+  transition: color 0.2s;
+}
+
+/* Tasas en uso */
+.comparador-rates-row {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.comp-rate-item {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  background: var(--bg-elevated);
+  padding: 0.35rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--glass-border);
+}
+
+.comp-rate-item strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* Resultado */
+.comparador-resultado {
+  background: var(--bg-elevated);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  animation: fadeInUp 0.3s ease;
+}
+
+.comparador-resultado.hidden { display: none; }
+
+.comp-result-winner {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.comp-result-winner.winner-usdt { color: var(--accent-green); }
+.comp-result-winner.winner-bcv  { color: var(--accent-blue);  }
+.comp-result-winner.winner-igual { color: var(--accent-yellow); }
+
+.comp-result-detail {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* Botón comparar */
+.comp-btn {
+  width: 100%;
+  padding: 0.85rem;
+  background: var(--gradient-primary);
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-family: var(--font-heading);
+  cursor: pointer;
+  letter-spacing: 0.03em;
+  transition: opacity 0.2s, transform 0.1s;
+}
+
+.comp-btn:hover  { opacity: 0.9; }
+.comp-btn:active { transform: scale(0.98); }
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 480px) {
+  .comparador-inputs {
+    grid-template-columns: 1fr;
+  }
+  .comparador-vs {
+    margin: 0 auto;
+  }
 }
