@@ -817,8 +817,26 @@ async function initComparador() {
   const updateEquiv = () => {
     const vBCV  = parseFloat(inputBCV?.value)  || 0;
     const vUSDT = parseFloat(inputUSDT?.value) || 0;
-    if (equivBCV)  equivBCV.textContent  = vBCV  && rateBCV  ? `≈ ${fmt(vBCV  * rateBCV)}  Bs.` : '— Bs.';
-    if (equivUSDT) equivUSDT.textContent = vUSDT && rateUSDT ? `≈ ${fmt(vUSDT * rateUSDT)} Bs.` : '— Bs.';
+
+    if (equivBCV) {
+      if (vBCV && rateBCV && rateUSDT) {
+        const bsBCV    = vBCV * rateBCV;
+        const usdtEqBCV = bsBCV / rateUSDT;
+        equivBCV.textContent = `≈ ${fmt(bsBCV)} Bs.  (≈ $${fmt(usdtEqBCV)} al P2P)`;
+      } else {
+        equivBCV.textContent = '— Bs.';
+      }
+    }
+
+    if (equivUSDT) {
+      if (vUSDT && rateUSDT && rateBCV) {
+        const bsUSDT    = vUSDT * rateUSDT;
+        const usdEqUSDT = bsUSDT / rateBCV;
+        equivUSDT.textContent = `≈ ${fmt(bsUSDT)} Bs.  (≈ $${fmt(usdEqUSDT)} al BCV)`;
+      } else {
+        equivUSDT.textContent = '— Bs.';
+      }
+    }
   };
 
   inputBCV?.addEventListener('input',  updateEquiv);
