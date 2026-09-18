@@ -57,10 +57,11 @@ document.addEventListener('DOMContentLoaded', () => {
   initCalculadora();
   setupCalculatorModal();
 
-  // 4. Inicializar filtros de tiempo, scorecard y comparador de tasas
+  // 4. Inicializar filtros de tiempo, scorecard, comparador y conversor
   initFilterButtons();
   initScorecard();
   initComparador();
+  initConversor();
 
   // 5. Cargar datos iniciales
   initDashboard();
@@ -898,7 +899,123 @@ async function initComparador() {
     }
 
 
+
     // Scroll suave hacia el resultado
     resultado?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   });
+}
+
+// ============================================================
+// CONVERSOR RÁPIDO — Bs ↔ USD / EUR / USDT
+// ============================================================
+
+async function initConversor() {
+  let rateUSD = 0, rateEUR = 0, rateUSDT = 0;
+
+  try {
+    const r = await fetchRates();
+    rateUSD  = parseFloat(r?.bcv?.usd)          || 0;
+    rateEUR  = parseFloat(r?.bcv?.eur)          || 0;
+    rateUSDT = parseFloat(r?.binance?.promedio) || 0;
+  } catch (e) {
+    console.warn('[Conversor] Error cargando tasas:', e.message);
+  }
+
+  const fmt = (n, dec = 2) => n.toLocaleString('de-DE', {
+    minimumFractionDigits: dec,
+    maximumFractionDigits: dec,
+  });
+
+  // Mostrar tasas de referencia
+  const setEl = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  setEl('conv-rate-usd',  rateUSD  ? fmt(rateUSD)  : '—');
+  setEl('conv-rate-eur',  rateEUR  ? fmt(rateEUR)  : '—');
+  setEl('conv-rate-usdt', rateUSDT ? fmt(rateUSDT) : '—');
+
+  // Mapa currency → tasa en Bs por unidad
+  const rates = { bs: 1, usd: rateUSD, eur: rateEUR, usdt: rateUSDT };
+
+  let selectedCurrency = 'bs'; // moneda de entrada activa
+
+  const amountInput = document.getElementById('conv-amount');
+  const curBtns     = document.querySelectorAll('.conv-cur-btn');
+
+  // Map de IDs resultado → key de moneda
+  const resultMap = {
+    'conv-val-bs':   'bs',
+    'conv-val-usd':  'usd',
+    'conv-val-eur':  'eur',
+    'conv-val-usdt': 'usdt',
+  };
+  const rowMap = {
+    'bs':   'conv-res-bs',
+    'usd':  'conv-res-usd',
+    'eur':  'conv-res-eur',
+    'usdt': 'conv-res-usdt',
+  };
+
+  function calculate() {
+    const amount = parseFloat(amountInput?.value) || 0;
+    const rateIn = rates[selectedCurrency] || 1;
+
+    // Convertir el monto a Bs primero, luego a cada moneda destino
+    const amountInBs = amount * rateIn;
+
+    Object.entries(resultMap).forEach(([valId, cur]) => {
+      const el  = document.getElementById(valId);
+      const row = document.getElementById(rowMap[cur]);
+      if (!el) return;
+
+      if (cur === selectedCurrency) {
+        // Resaltar la fuente (lo que el usuario escribió)
+        el.textContent = amount ? fmt(amount) : '—';
+        row?.classList.add('is-source');
+        row?.classList.remove('highlighted');
+        return;
+      }
+
+      row?.classList.remove('is-source');
+
+      const rateDest = rates[cur];
+      if (!rateDest || !amount) {
+        el.textContent = '—';
+        row?.classList.remove('highlighted');
+        return;
+      }
+
+      const result = amountInBs / rateDest;
+      // Bs siempre con 2 decimales; USD/EUR/USDT con más si el valor es pequeño
+      const decimals = cur === 'bs' ? 2 : result < 1 ? 6 : result < 100 ? 4 : 2;
+      el.textContent = fmt(result, decimals);
+      row?.classList.add('highlighted');
+    });
+  }
+
+  // Cambiar moneda de entrada
+  curBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      curBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      selectedCurrency = btn.dataset.currency;
+      calculate();
+    });
+  });
+
+  // Calcular en tiempo real al escribir
+  amountInput?.addEventListener('input', calculate);
+
+  // Botón intercambiar (⇄) — pone el foco en bs si no está, o en usdt si está en bs
+  document.getElementById('conv-swap-btn')?.addEventListener('click', () => {
+    const next = selectedCurrency === 'bs' ? 'usdt' : 'bs';
+    curBtns.forEach(b => {
+      const isNext = b.dataset.currency === next;
+      b.classList.toggle('active', isNext);
+    });
+    selectedCurrency = next;
+    calculate();
+    amountInput?.focus();
+  });
+
+  // Cálculo inicial vacío para activar los estilos
+  calculate();
 }

@@ -439,41 +439,67 @@
     </section>
 
     <!-- === SECCIÓN HISTORIAL / TABLA === -->
-    <section class="section history-section">
+    <!-- === CALCULADORA DE CONVERSIÓN RÁPIDA === -->
+    <section class="section conversor-section">
       <div class="section-header-row">
         <h2 class="section-title">
-          <span class="section-icon">🕐</span>
-          Registro Histórico
+          <span class="section-icon">🔄</span>
+          Conversor Rápido
         </h2>
-        <div class="filter-bar" id="table-filter-bar">
-          <button class="filter-btn active" data-filter="last10">Últimos 10</button>
-          <button class="filter-btn" data-filter="today">Hoy</button>
-          <button class="filter-btn" data-filter="week">Semana</button>
-          <button class="filter-btn" data-filter="month">Mes</button>
-          <button class="btn-primary" id="btn-export-excel" style="margin-left: 10px; padding: 0.4rem 1rem; font-size: 0.85rem; height: auto;">
-            📥 Exportar Excel (9 AM / 5 PM)
-          </button>
-        </div>
       </div>
-      <div class="table-container glass-card">
-        <div class="table-scroll">
-          <table class="history-table" id="history-table">
-            <thead>
-              <tr>
-                <th>Fecha</th>
-                <th>USD BCV</th>
-                <th>EUR BCV</th>
-                <th>USDT Prom.</th>
-                <th>Brecha USD</th>
-              </tr>
-            </thead>
-            <tbody id="history-table-body">
-              <!-- Filas skeleton de carga -->
-              <tr class="skeleton-row"><td colspan="5"><span class="skeleton-text wide"></span></td></tr>
-              <tr class="skeleton-row"><td colspan="5"><span class="skeleton-text wide"></span></td></tr>
-              <tr class="skeleton-row"><td colspan="5"><span class="skeleton-text wide"></span></td></tr>
-            </tbody>
-          </table>
+
+      <div class="conversor-card glass-card">
+        <p class="comparador-desc">Convierte entre bolívares, dólares BCV, euros BCV y USDT Binance usando las tasas actuales en tiempo real.</p>
+
+        <div class="conversor-body">
+
+          <!-- Panel izquierdo: entrada -->
+          <div class="conversor-panel">
+            <label class="conversor-label">Tengo</label>
+            <div class="conversor-input-wrap">
+              <input type="number" id="conv-amount" class="comparador-input" placeholder="0,00" min="0" step="any" />
+            </div>
+            <div class="conversor-currency-grid">
+              <button class="conv-cur-btn active" data-currency="bs">🇻🇪 Bs.</button>
+              <button class="conv-cur-btn" data-currency="usd">🇺🇸 USD BCV</button>
+              <button class="conv-cur-btn" data-currency="eur">🇪🇺 EUR BCV</button>
+              <button class="conv-cur-btn" data-currency="usdt">💱 USDT P2P</button>
+            </div>
+          </div>
+
+          <!-- Flecha central -->
+          <div class="conversor-arrow" id="conv-swap-btn" title="Intercambiar">⇄</div>
+
+          <!-- Panel derecho: resultado -->
+          <div class="conversor-panel">
+            <label class="conversor-label">Equivale a</label>
+            <div class="conversor-results" id="conv-results">
+              <div class="conv-result-row" id="conv-res-bs">
+                <span class="conv-res-label">🇻🇪 Bs.</span>
+                <span class="conv-res-value" id="conv-val-bs">—</span>
+              </div>
+              <div class="conv-result-row" id="conv-res-usd">
+                <span class="conv-res-label">🇺🇸 USD BCV</span>
+                <span class="conv-res-value" id="conv-val-usd">—</span>
+              </div>
+              <div class="conv-result-row" id="conv-res-eur">
+                <span class="conv-res-label">🇪🇺 EUR BCV</span>
+                <span class="conv-res-value" id="conv-val-eur">—</span>
+              </div>
+              <div class="conv-result-row" id="conv-res-usdt">
+                <span class="conv-res-label">💱 USDT P2P</span>
+                <span class="conv-res-value" id="conv-val-usdt">—</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Tasas usadas -->
+        <div class="comparador-rates-row" style="margin-top: 0.5rem;">
+          <span class="comp-rate-item">🏦 USD BCV: <strong id="conv-rate-usd">—</strong> Bs</span>
+          <span class="comp-rate-item">🇪🇺 EUR BCV: <strong id="conv-rate-eur">—</strong> Bs</span>
+          <span class="comp-rate-item">💱 USDT P2P: <strong id="conv-rate-usdt">—</strong> Bs</span>
         </div>
       </div>
     </section>
