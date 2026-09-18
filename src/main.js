@@ -954,8 +954,26 @@ async function initConversor() {
     'usdt': 'conv-res-usdt',
   };
 
+  // Helpers para formatear el input con puntos como separador de miles
+  function formatInputValue(raw) {
+    // Solo dígitos y una coma decimal
+    let cleaned = raw.replace(/\./g, '').replace(/[^0-9,]/g, '');
+    // Separar parte entera y decimal
+    const parts = cleaned.split(',');
+    let intPart = parts[0] || '';
+    const decPart = parts.length > 1 ? ',' + parts[1] : '';
+    // Aplicar puntos cada 3 dígitos en la parte entera
+    intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    return intPart + decPart;
+  }
+
+  function parseInputValue(formatted) {
+    // Quitar puntos, cambiar coma a punto para parseFloat
+    return parseFloat(formatted.replace(/\./g, '').replace(',', '.')) || 0;
+  }
+
   function calculate() {
-    const amount = parseFloat(amountInput?.value) || 0;
+    const amount = parseInputValue(amountInput?.value || '');
     const rateIn = rates[selectedCurrency] || 1;
 
     // Convertir el monto a Bs primero, luego a cada moneda destino
@@ -967,7 +985,6 @@ async function initConversor() {
       if (!el) return;
 
       if (cur === selectedCurrency) {
-        // Resaltar la fuente (lo que el usuario escribió)
         el.textContent = amount ? fmt(amount) : '—';
         row?.classList.add('is-source');
         row?.classList.remove('highlighted');
@@ -984,7 +1001,6 @@ async function initConversor() {
       }
 
       const result = amountInBs / rateDest;
-      // Bs siempre con 2 decimales; USD/EUR/USDT con más si el valor es pequeño
       const decimals = cur === 'bs' ? 2 : result < 1 ? 6 : result < 100 ? 4 : 2;
       el.textContent = fmt(result, decimals);
       row?.classList.add('highlighted');
@@ -1001,8 +1017,18 @@ async function initConversor() {
     });
   });
 
-  // Calcular en tiempo real al escribir
-  amountInput?.addEventListener('input', calculate);
+  // Formatear con puntos al escribir y recalcular
+  amountInput?.addEventListener('input', () => {
+    const el = amountInput;
+    const pos = el.selectionStart;
+    const prevLen = el.value.length;
+    const formatted = formatInputValue(el.value);
+    el.value = formatted;
+    // Reposicionar cursor proporcionalmente
+    const diff = formatted.length - prevLen;
+    el.setSelectionRange(pos + diff, pos + diff);
+    calculate();
+  });
 
   // Botón intercambiar (⇄) — pone el foco en bs si no está, o en usdt si está en bs
   document.getElementById('conv-swap-btn')?.addEventListener('click', () => {
